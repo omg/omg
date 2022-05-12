@@ -1,6 +1,8 @@
 const path = require('path');
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyPlugin = require("copy-webpack-plugin");
+
 // minify the output with css-minimizer-webpack-plugin
 
 // we can also save space by using less pixi modules!
@@ -14,7 +16,7 @@ module.exports = {
   devServer: {
     watchFiles: ["src/*.html"],
     hot: true,
-  }, 
+  },
   module: {
     rules: [
       {
@@ -35,6 +37,11 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './src/index.html',
       inject: false
-    })
+    }),
+    new CopyPlugin({
+      patterns: [
+        { from: "./src/assets", to: "assets" }
+      ],
+    }),
   ]
 };
