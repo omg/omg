@@ -1,4 +1,4 @@
-import { Application, Sprite, Graphics, Text } from 'pixi.js';
+import { Application, Sprite, Graphics, Text, Container } from 'pixi.js';
 import scss from './style.scss';
 
 const app = new Application({
@@ -8,12 +8,18 @@ const app = new Application({
 
 document.body.appendChild(app.view);
 
+let container = new Container();
+container.pivot.set(133, 128);
+app.stage.addChild(container);
+
+
 // Listen for window resize events
 
 // Function to call when the app is resized
 function resize() {
 	// Resize the renderer
 	app.renderer.resize(window.innerWidth, window.innerHeight);
+  container.position.set(window.innerWidth / 2, window.innerHeight- 20);
 }
 window.addEventListener('resize', resize);
 resize();
@@ -51,32 +57,33 @@ const BUTTON_COLOR = 0xFFFFFF;
 
 let hitButton = new Graphics();
 hitButton.beginFill(BUTTON_COLOR);
-hitButton.drawRect((app.view.width / 2) - 100, (app.view.height) - 300, 128, 128);
-hitButton.endFill;
+hitButton.drawRect(0, 0, 128, 128);
+hitButton.endFill();
 hitButton.interactive = true;
 hitButton.buttonMode = true;
 
 //adding the text for the button as well
 var hitButtonText = new Text('HIT', { fontFamily: 'Comic Sans', fontSize: 48, fill: 0x000000 });
-hitButtonText.x = (app.view.width / 2) - 76;
-hitButtonText.y = (app.view.height) - 260;
+hitButtonText.anchor.set(0.5, 0.5);
+hitButtonText.position.set(64, 64);
 
-app.stage.addChild(hitButton);
-app.stage.addChild(hitButtonText);
+container.addChild(hitButton);
+hitButton.addChild(hitButtonText);
 
 let standButton = new Graphics();
 standButton.beginFill(BUTTON_COLOR);
-standButton.drawRect((app.view.width / 2) - 300, (app.view.height) - 300, 128, 128);
-standButton.endFill;
+standButton.drawRect(0, 0, 128, 128);
+standButton.x = 138;
+standButton.endFill();
 standButton.interactive = true;
 standButton.buttonMode = true;
 
 var standButtonText = new Text('STAND', { fontFamily: 'Comic Sans', fontSize: 36, fill: 0x000000 });
-standButtonText.x = (app.view.width / 2) - 294;
-standButtonText.y = (app.view.height) - 258;
+standButtonText.anchor.set(0.5, 0.5);
+standButtonText.position.set(64, 64)
 
-app.stage.addChild(standButton);
-app.stage.addChild(standButtonText);
+container.addChild(standButton);
+standButton.addChild(standButtonText);
 
 //boolean to check if it is players turn (you are not allowed to press buttons if it is not your turn!)
 var isPlayersTurn = true;
@@ -127,7 +134,7 @@ function getCardTexture(card) {
 }
 
 //function to add a card
-function addCard() {
+function addCard(forPlayer) {
   var cardForObject = shoe.pop();
   console.log(getCardTexture(cardForObject));
   let card = {
@@ -144,69 +151,67 @@ function addCard() {
   card.sprite.width = cardDimensions.width;
   card.sprite.height = cardDimensions.height;
 
-  card.sprite.x = 200 + cards.length * 30;
-  card.sprite.y = 100 + cards.length * 30;
+  card.sprite.position.set(200 + cards.length * 30, 100 + cards.length * 30);
 }
 
-addCard();
-addCard();
+addCard(true);
+addCard(true);
 
 console.log(cards);
 
-var handTotal = 0;
+var playerHandTotal = 0;
 //secondary hand total is for when you have aces in hand (i.e hand could be 5 or 15)
-var secondaryHandTotal = 0;
+var playerSecondaryHandTotal = 0;
 var handTotalText = new Text('0', { fontFamily: 'Comic Sans', fontSize: 48, fill: 0xffffff });
 
-handTotalText.x = 200;
-handTotalText.y = 500;
+handTotalText.position.set(200, 500);
 
 app.stage.addChild(handTotalText);
 
 //function to get hand total and update handTotalText
 function getHandTotal() {
   //reset hand totals
-  handTotal = 0;
-  secondaryHandTotal = 0;
+  playerHandTotal = 0;
+  playerSecondaryHandTotal = 0;
   let numberOfAces = 0;
   for (const card of cards) {
     if (CARD_FACES[card.face].value == 1) {
       numberOfAces++;
     }
-    handTotal += CARD_FACES[card.face].value;
+    playerHandTotal += CARD_FACES[card.face].value;
   }
 
-  secondaryHandTotal = handTotal + 10 * numberOfAces;
+  playerSecondaryHandTotal = playerHandTotal + 10 * numberOfAces;
 
-  if (secondaryHandTotal == 21 && cards.length == 2) {
+  if (playerSecondaryHandTotal == 21 && cards.length == 2) {
     handTotalText.text = BLACKJACK_DISPLAY_TEXT;
   }
 
-  else if (handTotal > 21) {
-    handTotalText.text = handTotal + " " + BUST_DISPLAY_TEXT; 
+  else if (playerHandTotal > 21) {
+    handTotalText.text = playerHandTotal + " " + BUST_DISPLAY_TEXT; 
   }
 
-  else if (handTotal == 21 || secondaryHandTotal == 21) {
+  else if (playerHandTotal == 21 || playerSecondaryHandTotal == 21) {
     handTotalText.text = "21";
   }
 
   else if (numberOfAces == 0) {
-    handTotalText.text = handTotal;
+    handTotalText.text = playerHandTotal;
   }
 
-  else if (numberOfAces != 0 && secondaryHandTotal > 21) {
-    handTotalText.text = handTotal;
+  else if (numberOfAces != 0 && playerSecondaryHandTotal > 21) {
+    handTotalText.text = playerHandTotal;
   }
 
   else if (numberOfAces != 0) {
-    handTotalText.text = handTotal + "/" + secondaryHandTotal;
+    handTotalText.text = playerHandTotal + "/" + playerSecondaryHandTotal;
   }
   
 }
 
 function hit() {
   //making sure that you don't have a blackjack or are over 21
-  if (handTotal < 21 && (handTotalText.text != BLACKJACK_DISPLAY_TEXT) && isPlayersTurn) {
+  if (playerHandTotal < 21 && (handTotalText.text != BLACKJACK_DISPLAY_TEXT) && isPlayersTurn) {
     addCard();
     getHandTotal();
   }
