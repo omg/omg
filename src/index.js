@@ -51,18 +51,35 @@ const BUTTON_COLOR = 0xFFFFFF;
 
 let hitButton = new Graphics();
 hitButton.beginFill(BUTTON_COLOR);
-hitButton.drawRect((app.view.width/2)-100, (app.view.height)-300, 128, 128);
+hitButton.drawRect((app.view.width / 2) - 100, (app.view.height) - 300, 128, 128);
 hitButton.endFill;
 hitButton.interactive = true;
 hitButton.buttonMode = true;
 
 //adding the text for the button as well
-var hitButtonText = new Text('HIT',{fontFamily: 'Comic Sans', fontSize: 48, fill: 0x000000});
-hitButtonText.x = (app.view.width/2)-76;
-hitButtonText.y = (app.view.height)-260;
+var hitButtonText = new Text('HIT', { fontFamily: 'Comic Sans', fontSize: 48, fill: 0x000000 });
+hitButtonText.x = (app.view.width / 2) - 76;
+hitButtonText.y = (app.view.height) - 260;
 
 app.stage.addChild(hitButton);
 app.stage.addChild(hitButtonText);
+
+let standButton = new Graphics();
+standButton.beginFill(BUTTON_COLOR);
+standButton.drawRect((app.view.width / 2) - 300, (app.view.height) - 300, 128, 128);
+standButton.endFill;
+standButton.interactive = true;
+standButton.buttonMode = true;
+
+var standButtonText = new Text('STAND', { fontFamily: 'Comic Sans', fontSize: 36, fill: 0x000000 });
+standButtonText.x = (app.view.width / 2) - 294;
+standButtonText.y = (app.view.height) - 258;
+
+app.stage.addChild(standButton);
+app.stage.addChild(standButtonText);
+
+//boolean to check if it is players turn (you are not allowed to press buttons if it is not your turn!)
+var isPlayersTurn = true;
 
 function shuffle(array) {
   let currentIndex = array.length, temporaryValue, randomIndex;
@@ -139,7 +156,7 @@ console.log(cards);
 var handTotal = 0;
 //secondary hand total is for when you have aces in hand (i.e hand could be 5 or 15)
 var secondaryHandTotal = 0;
-var handTotalText = new Text('0',{fontFamily: 'Comic Sans', fontSize: 48, fill: 0xffffff});
+var handTotalText = new Text('0', { fontFamily: 'Comic Sans', fontSize: 48, fill: 0xffffff });
 
 handTotalText.x = 200;
 handTotalText.y = 500;
@@ -189,13 +206,19 @@ function getHandTotal() {
 
 function hit() {
   //making sure that you don't have a blackjack or are over 21
-  if (handTotal < 21 && (handTotalText.text != BLACKJACK_DISPLAY_TEXT)) {
+  if (handTotal < 21 && (handTotalText.text != BLACKJACK_DISPLAY_TEXT) && isPlayersTurn) {
     addCard();
     getHandTotal();
   }
 }
 
+function stand() {
+  isPlayersTurn = false;
+}
+
+//adding button listeners HERE
 hitButton.on("pointerup", hit);
+standButton.on("pointerup", stand);
 
 //getting hand total for when the program loads up
 getHandTotal();
