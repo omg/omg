@@ -1,4 +1,4 @@
-import { Application, Graphics, Sprite, Text} from 'pixi.js';
+import { Application, Sprite, Graphics, Text } from 'pixi.js';
 import scss from './style.scss';
 
 const app = new Application({
@@ -19,6 +19,9 @@ window.addEventListener('resize', resize);
 resize();
 
 //-----------------------------------------------------------
+
+const BLACKJACK_DISPLAY_TEXT = "Blackjack!";
+const BUST_DISPLAY_TEXT = "(Bust!)";
 
 const FACES = {
   'ace': 1,
@@ -42,6 +45,24 @@ const SUITS = [
   'hearts',
   'spades',
 ]
+
+//making buttons for bottom of the screen
+const BUTTON_COLOR = 0xFFFFFF;
+
+let hitButton = new Graphics();
+hitButton.beginFill(BUTTON_COLOR);
+hitButton.drawRect((app.view.width/2)-100, (app.view.height)-300, 128, 128);
+hitButton.endFill;
+hitButton.interactive = true;
+hitButton.buttonMode = true;
+
+//adding the text for the button as well
+var hitButtonText = new Text('HIT',{fontFamily: 'Comic Sans', fontSize: 48, fill: 0x000000});
+hitButtonText.x = (app.view.width/2)-76;
+hitButtonText.y = (app.view.height)-260;
+
+app.stage.addChild(hitButton);
+app.stage.addChild(hitButtonText);
 
 function shuffle(array) {
   let currentIndex = array.length, temporaryValue, randomIndex;
@@ -137,7 +158,11 @@ function getHandTotal() {
   secondaryHandTotal = handTotal + 10 * numberOfAces;
 
   if (secondaryHandTotal == 21 && cards.length == 2) {
-    handTotalText.text = "Blackjack!";
+    handTotalText.text = BLACKJACK_DISPLAY_TEXT;
+  }
+
+  else if (handTotal > 21) {
+    handTotalText.text = handTotal + " " + BUST_DISPLAY_TEXT; 
   }
 
   else if (handTotal == 21 || secondaryHandTotal == 21) {
@@ -148,9 +173,27 @@ function getHandTotal() {
     handTotalText.text = handTotal;
   }
 
+  else if (numberOfAces != 0 && secondaryHandTotal > 21) {
+    handTotalText.text = handTotal;
+  }
+
   else if (numberOfAces != 0) {
     handTotalText.text = handTotal + "/" + secondaryHandTotal;
   }
+  
 }
 
+function hit() {
+  //making sure that you don't have a blackjack or are over 21
+  if (handTotal < 21 && (handTotalText.text != BLACKJACK_DISPLAY_TEXT)) {
+    addCard();
+    getHandTotal();
+  }
+}
+
+hitButton.on("pointerup", hit);
+
+//getting hand total for when the program loads up
 getHandTotal();
+
+//-----------------------------------------------------------
