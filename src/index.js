@@ -1,4 +1,4 @@
-import { Application, Graphics, Sprite} from 'pixi.js';
+import { Application, Sprite, Graphics, Text } from 'pixi.js';
 import scss from './style.scss';
 
 const app = new Application({
@@ -20,21 +20,24 @@ resize();
 
 //-----------------------------------------------------------
 
-const FACES = [
-  'ace',
-  '2',
-  '3',
-  '4',
-  '5',
-  '6',
-  '7',
-  '8',
-  '9',
-  '10',
-  'jack',
-  'queen',
-  'king'
-];
+const BLACKJACK_DISPLAY_TEXT = "Blackjack!";
+const BUST_DISPLAY_TEXT = "(Bust!)";
+
+const FACES = {
+  'ace': 1,
+  '2': 2,
+  '3': 3,
+  '4': 4,
+  '5': 5,
+  '6': 6,
+  '7': 7,
+  '8': 8,
+  '9': 9,
+  '10': 10,
+  'jack': 10,
+  'queen': 10,
+  'king': 10
+};
 
 const SUITS = [
   'clubs',
@@ -42,6 +45,24 @@ const SUITS = [
   'hearts',
   'spades',
 ]
+
+//making buttons for bottom of the screen
+const BUTTON_COLOR = 0xFFFFFF;
+
+let hitButton = new Graphics();
+hitButton.beginFill(BUTTON_COLOR);
+hitButton.drawRect((app.view.width/2)-100, (app.view.height)-300, 128, 128);
+hitButton.endFill;
+hitButton.interactive = true;
+hitButton.buttonMode = true;
+
+//adding the text for the button as well
+var hitButtonText = new Text('HIT',{fontFamily: 'Comic Sans', fontSize: 48, fill: 0x000000});
+hitButtonText.x = (app.view.width/2)-76;
+hitButtonText.y = (app.view.height)-260;
+
+app.stage.addChild(hitButton);
+app.stage.addChild(hitButtonText);
 
 function shuffle(array) {
   let currentIndex = array.length, temporaryValue, randomIndex;
@@ -62,13 +83,12 @@ function shuffle(array) {
   return array;
 }
 
-
-let shoe = [];
+var shoe = [];
 
 //function to create shoe
 function createShoe(numberOfDecks) {
   for (let i = 0; i < numberOfDecks; i++) {
-    for (const face of FACES) {
+    for (const face in FACES) {
       for (const suit of SUITS) {
         shoe.push({ face, suit })
       }
@@ -79,21 +99,101 @@ function createShoe(numberOfDecks) {
 createShoe(6);
 console.log(shoe);
 
-let cardOne = shoe.pop();
-let cardOneSprite = Sprite.from(`./assets/cards/${cardOne.face}_of_${cardOne.suit}.png`);
-
-cardOneSprite.width = 137;
-cardOneSprite.height = 187;
-cardOneSprite.x = 200;
-cardOneSprite.y = 100;
-
-app.stage.addChild(cardOneSprite);
+var cards = [];
+var cardDimensions = {
+  width: 137, 
+  height: 187
+};
 
 
-// Let's draw a red square at the bottom right
-const square = new Graphics()
-	.beginFill(0xff0000)
-  .drawRect(-100, -100, 100, 100); // Offset -100, -100 // Size 100, 100
+//function to add a card
+function addCard() {
+  var cardForObject = shoe.pop();
+  let card = {
+    'face': cardForObject.face,
+    'suit': cardForObject.suit,
+    'sprite': Sprite.from(`./assets/cards/${cardForObject.face}_of_${cardForObject.suit}.png`)
+  };
+
+  app.stage.addChild(card.sprite);
+  cards.push(card);
+
+  //incrementing cardCoords to keep proper positioning between cards
+
+  card.sprite.width = cardDimensions.width;
+  card.sprite.height = cardDimensions.height;
+
+  card.sprite.x = 200 + cards.length * 30;
+  card.sprite.y = 100 + cards.length * 30;
+}
+
+addCard();
+addCard();
+
+console.log(cards);
+
+var handTotal = 0;
+//secondary hand total is for when you have aces in hand (i.e hand could be 5 or 15)
+var secondaryHandTotal = 0;
+var handTotalText = new Text('0',{fontFamily: 'Comic Sans', fontSize: 48, fill: 0xffffff});
+
+handTotalText.x = 200;
+handTotalText.y = 500;
+
+app.stage.addChild(handTotalText);
+
+//function to get hand total and update handTotalText
+function getHandTotal() {
+  //reset hand totals
+  handTotal = 0;
+  secondaryHandTotal = 0;
+  let numberOfAces = 0;
+  for (const card of cards) {
+    if (card.face == 'ace') {
+      numberOfAces++;
+    }
+    handTotal += FACES[card.face];
+  }
+
+  secondaryHandTotal = handTotal + 10 * numberOfAces;
+
+  if (secondaryHandTotal == 21 && cards.length == 2) {
+    handTotalText.text = BLACKJACK_DISPLAY_TEXT;
+  }
+
+  else if (handTotal > 21) {
+    handTotalText.text = handTotal + " " + BUST_DISPLAY_TEXT; 
+  }
+
+  else if (handTotal == 21 || secondaryHandTotal == 21) {
+    handTotalText.text = "21";
+  }
+
+  else if (numberOfAces == 0) {
+    handTotalText.text = handTotal;
+  }
+
+  else if (numberOfAces != 0 && secondaryHandTotal > 21) {
+    handTotalText.text = handTotal;
+  }
+
+  else if (numberOfAces != 0) {
+    handTotalText.text = handTotal + "/" + secondaryHandTotal;
+  }
   
-// Add it to the stage
-app.stage.addChild(square);
+}
+
+function hit() {
+  //making sure that you don't have a blackjack or are over 21
+  if (handTotal < 21 && (handTotalText.text != BLACKJACK_DISPLAY_TEXT)) {
+    addCard();
+    getHandTotal();
+  }
+}
+
+hitButton.on("pointerup", hit);
+
+//getting hand total for when the program loads up
+getHandTotal();
+
+//-----------------------------------------------------------
