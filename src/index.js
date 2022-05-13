@@ -307,7 +307,7 @@ function getHandTotal(totalRecipient) {
 async function dealerTurn() {
   addCard('dealer');
   getHandTotal('dealer');
-  if (dealerHandTotal <= 17 && dealerSecondaryHandTotal != 21) {
+  if (dealerHandTotal < 17 && dealerSecondaryHandTotal != 21) {
     await sleep(1000);
     dealerTurn();
   }
@@ -323,7 +323,7 @@ function hit() {
 
 function stand() {
   isPlayersTurn = false;
-  if (dealerHandTotal <= 17 && dealerSecondaryHandTotal != 21) {
+  if (dealerHandTotal < 17 && dealerSecondaryHandTotal != 21) {
   dealerTurn();
   }
 }
