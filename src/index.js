@@ -23,28 +23,28 @@ resize();
 const BLACKJACK_DISPLAY_TEXT = "Blackjack!";
 const BUST_DISPLAY_TEXT = "(Bust!)";
 
-const FACES = {
-  'ace': 1,
-  '2': 2,
-  '3': 3,
-  '4': 4,
-  '5': 5,
-  '6': 6,
-  '7': 7,
-  '8': 8,
-  '9': 9,
-  '10': 10,
-  'jack': 10,
-  'queen': 10,
-  'king': 10
+const CARD_FACES = {
+  ["Ace"]: { value: 1, texture: "1" }, // ace is the exception to the value property!
+  ["Deuce"]: { value: 2, texture: "2" },
+  ["Three"]: { value: 3, texture: "3" },
+  ["Four"]: { value: 4, texture: "4" },
+  ["Five"]: { value: 5, texture: "5" },
+  ["Six"]: { value: 6, texture: "6" },
+  ["Seven"]: { value: 7, texture: "7" },
+  ["Eight"]: { value: 8, texture: "8" },
+  ["Nine"]: { value: 9, texture: "9" },
+  ["Ten"]: { value: 10, texture: "10" },
+  ["Jack"]: { value: 10, texture: "11" }, // texture is 11 so that it's alphabetically ordered in File Explorer
+  ["Queen"]: { value: 10, texture: "12" },
+  ["King"]: { value: 10, texture: "13" }
 };
 
-const SUITS = [
-  'clubs',
-  'diamonds',
-  'hearts',
-  'spades',
-]
+const CARD_SUITS = {
+  ["Clubs"]: { texture: "clubs" },
+  ["Diamonds"]: { texture: "diamonds" },
+  ["Hearts"]: { texture: "hearts" },
+  ["Spades"]: { texture: "spades" }
+};
 
 //making buttons for bottom of the screen
 const BUTTON_COLOR = 0xFFFFFF;
@@ -88,9 +88,9 @@ var shoe = [];
 //function to create shoe
 function createShoe(numberOfDecks) {
   for (let i = 0; i < numberOfDecks; i++) {
-    for (const face in FACES) {
-      for (const suit of SUITS) {
-        shoe.push({ face, suit })
+    for (const face in CARD_FACES) {
+      for (const suit in CARD_SUITS) {
+        shoe.push({ face, suit });
       }
     }
   }
@@ -105,14 +105,18 @@ var cardDimensions = {
   height: 187
 };
 
+function getCardTexture(card) {
+  return `./assets/cards/${CARD_SUITS[card.suit].texture}-${CARD_FACES[card.face].texture}.png`;
+}
 
 //function to add a card
 function addCard() {
   var cardForObject = shoe.pop();
+  console.log(getCardTexture(cardForObject));
   let card = {
     'face': cardForObject.face,
     'suit': cardForObject.suit,
-    'sprite': Sprite.from(`./assets/cards/${cardForObject.face}_of_${cardForObject.suit}.png`)
+    'sprite': Sprite.from(getCardTexture(cardForObject))
   };
 
   app.stage.addChild(card.sprite);
@@ -149,10 +153,10 @@ function getHandTotal() {
   secondaryHandTotal = 0;
   let numberOfAces = 0;
   for (const card of cards) {
-    if (card.face == 'ace') {
+    if (CARD_FACES[card.face].value == 1) {
       numberOfAces++;
     }
-    handTotal += FACES[card.face];
+    handTotal += CARD_FACES[card.face].value;
   }
 
   secondaryHandTotal = handTotal + 10 * numberOfAces;
