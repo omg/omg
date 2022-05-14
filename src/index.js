@@ -331,7 +331,7 @@ function hit() {
 async function stand() {
   isPlayersTurn = false;
   if (dealerHandTotal < 17 && dealerSecondaryHandTotal != 21) {
-    dealerHandTotalText.visible = true; // Calling this unnecessarily every time
+    dealerHandTotalText.visible = true;
     dealer.hand[1].sprite.visible = true;
     faceDownCardSprite.visible = false;
     
