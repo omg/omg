@@ -33,6 +33,21 @@ function sleep(milliseconds) {
   });
 }
 
+function shuffle(array) {
+  let currentIndex = array.length, temporaryValue, randomIndex;
+
+  while (0 !== currentIndex) {
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+
+  return array;
+}
+
 //-----------------------------------------------------------
 
 const BLACKJACK_DISPLAY_TEXT = "Blackjack!";
@@ -72,14 +87,6 @@ const BUTTON_MARGIN = 12;
 
 //-----------------------------------------------------------
 
-// TODO make this part of the container
-let faceDownCardSprite = Sprite.from('./assets/cards/card-back.png');
-faceDownCardSprite.width = CARD_DIMENSIONS.width;
-faceDownCardSprite.height = CARD_DIMENSIONS.height;
-faceDownCardSprite.position.set(1380, 160);
-faceDownCardSprite.zIndex = 2;
-app.stage.addChild(faceDownCardSprite);
-
 // Create action buttons
 let actionPosition = 0;
 function createActionButton(width, text) {
@@ -110,27 +117,18 @@ let hitButton = createActionButton(100, 'HIT');
 let standButton = createActionButton(156, 'STAND');
 actionContainerResized();
 
+//-----------------------------------------------------------
+
+// TODO make this part of the container
+let faceDownCardSprite = Sprite.from('./assets/cards/card-back.png');
+faceDownCardSprite.width = CARD_DIMENSIONS.width;
+faceDownCardSprite.height = CARD_DIMENSIONS.height;
+faceDownCardSprite.position.set(1380, 160);
+faceDownCardSprite.zIndex = 2;
+app.stage.addChild(faceDownCardSprite);
+
 // Boolean to check if it is players turn (you are not allowed to press buttons if it is not your turn!)
 let isPlayersTurn = true;
-
-function shuffle(array) {
-  let currentIndex = array.length, temporaryValue, randomIndex;
-
-  // While there remain elements to shuffle...
-  while (0 !== currentIndex) {
-
-    // Pick a remaining element...
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex -= 1;
-
-    // And swap it with the current element.
-    temporaryValue = array[currentIndex];
-    array[currentIndex] = array[randomIndex];
-    array[randomIndex] = temporaryValue;
-  }
-
-  return array;
-}
 
 let shoe = [];
 
