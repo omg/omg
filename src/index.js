@@ -1,30 +1,76 @@
-import { Application, Sprite, Graphics, Text } from 'pixi.js';
+import { Application, Sprite, Graphics, Text, Container } from 'pixi.js';
 import scss from './style.scss';
+
+//-----------------------------------------------------------
+// Application
 
 const app = new Application({
 	autoResize: true,
   resolution: devicePixelRatio 
 });
-
 document.body.appendChild(app.view);
 
-// Listen for window resize events
+// Create the action container which will have the buttons
+let actionContainer = new Container();
+function actionContainerResized() {
+  actionContainer.pivot.set(actionContainer.width / 2, 50);
+}
+app.stage.addChild(actionContainer);
 
-// Function to call when the app is resized
+// Listen for window resize events
 function resize() {
-	// Resize the renderer
 	app.renderer.resize(window.innerWidth, window.innerHeight);
+
+  // Reposition the action container
+  actionContainer.position.set(window.innerWidth / 2, window.innerHeight - 20);
 }
 window.addEventListener('resize', resize);
 resize();
 
 //-----------------------------------------------------------
+// Utility
+
+function sleep(milliseconds) {
+  return new Promise(resolve => {
+    setTimeout(resolve, milliseconds);
+  });
+}
+
+function shuffle(array) {
+  let currentIndex = array.length, temporaryValue, randomIndex;
+
+  while (0 !== currentIndex) {
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+
+  return array;
+}
+
+function getCardTexture(card) {
+  return `./assets/cards/${CARD_SUITS[card.suit].texture}-${CARD_FACES[card.face].texture}.png`;
+}
+
+//-----------------------------------------------------------
+// Constants
 
 const BLACKJACK_DISPLAY_TEXT = "Blackjack!";
 const BUST_DISPLAY_TEXT = "(Bust!)";
 
+const BUTTON_COLOR = 0xFFFFFF;
+const TEXT_FONT = 'Comic Sans MS';
+
+const CARD_DIMENSIONS = {
+  width: 137, 
+  height: 187
+};
+
 const CARD_FACES = {
-  ["Ace"]: { value: 1, texture: "1" }, // ace is the exception to the value property!
+  ["Ace"]: { value: 1, texture: "1" }, // Ace is the exception to the value property!
   ["Deuce"]: { value: 2, texture: "2" },
   ["Three"]: { value: 3, texture: "3" },
   ["Four"]: { value: 4, texture: "4" },
@@ -34,11 +80,10 @@ const CARD_FACES = {
   ["Eight"]: { value: 8, texture: "8" },
   ["Nine"]: { value: 9, texture: "9" },
   ["Ten"]: { value: 10, texture: "10" },
-  ["Jack"]: { value: 10, texture: "11" }, // texture is 11 so that it's alphabetically ordered in File Explorer
+  ["Jack"]: { value: 10, texture: "11" }, // Texture is 11 so that it's alphabetically ordered in File Explorer
   ["Queen"]: { value: 10, texture: "12" },
   ["King"]: { value: 10, texture: "13" }
 };
-
 const CARD_SUITS = {
   ["Clubs"]: { texture: "clubs" },
   ["Diamonds"]: { texture: "diamonds" },
@@ -46,64 +91,48 @@ const CARD_SUITS = {
   ["Spades"]: { texture: "spades" }
 };
 
-//making buttons for bottom of the screen
-const BUTTON_COLOR = 0xFFFFFF;
+const BUTTON_MARGIN = 12;
 
-let hitButton = new Graphics();
-hitButton.beginFill(BUTTON_COLOR);
-hitButton.drawRect((app.view.width / 2) - 100, (app.view.height) - 300, 128, 128);
-hitButton.endFill;
-hitButton.interactive = true;
-hitButton.buttonMode = true;
+//-----------------------------------------------------------
+// Buttons
 
-//adding the text for the button as well
-var hitButtonText = new Text('HIT', { fontFamily: 'Comic Sans', fontSize: 48, fill: 0x000000 });
-hitButtonText.x = (app.view.width / 2) - 76;
-hitButtonText.y = (app.view.height) - 260;
+// Create action buttons
+let actionPosition = 0;
+function createActionButton(width, text) {
+  // Create new button at current position and move the pointer
+  let newButton = new Graphics()
+    .beginFill(BUTTON_COLOR)
+    .drawRect(0, 0, width, 50)
+    .endFill();
+  newButton.interactive = true;
+  newButton.buttonMode = true;
 
-app.stage.addChild(hitButton);
-app.stage.addChild(hitButtonText);
+  newButton.x = actionPosition;
+  actionPosition += width + BUTTON_MARGIN;
 
-let standButton = new Graphics();
-standButton.beginFill(BUTTON_COLOR);
-standButton.drawRect((app.view.width / 2) - 300, (app.view.height) - 300, 128, 128);
-standButton.endFill;
-standButton.interactive = true;
-standButton.buttonMode = true;
+  // Create text at the center of the button
+  let buttonText = new Text(text, { fontFamily: TEXT_FONT, fontSize: 36, fill: 0x000000 });
+  buttonText.anchor.set(0.5, 0.5);
+  buttonText.position.set(width / 2, 25);
 
-var standButtonText = new Text('STAND', { fontFamily: 'Comic Sans', fontSize: 36, fill: 0x000000 });
-standButtonText.x = (app.view.width / 2) - 294;
-standButtonText.y = (app.view.height) - 258;
+  // Add text and button as children
+  newButton.addChild(buttonText);
+  actionContainer.addChild(newButton);
 
-app.stage.addChild(standButton);
-app.stage.addChild(standButtonText);
-
-//boolean to check if it is players turn (you are not allowed to press buttons if it is not your turn!)
-var isPlayersTurn = true;
-
-function shuffle(array) {
-  let currentIndex = array.length, temporaryValue, randomIndex;
-
-  // While there remain elements to shuffle...
-  while (0 !== currentIndex) {
-
-    // Pick a remaining element...
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex -= 1;
-
-    // And swap it with the current element.
-    temporaryValue = array[currentIndex];
-    array[currentIndex] = array[randomIndex];
-    array[randomIndex] = temporaryValue;
-  }
-
-  return array;
+  return newButton;
 }
 
-var shoe = [];
+let hitButton = createActionButton(100, 'HIT');
+let standButton = createActionButton(156, 'STAND');
+actionContainerResized();
 
-//function to create shoe
+//-----------------------------------------------------------
+// Shoe
+
+let shoe;
 function createShoe(numberOfDecks) {
+  shoe = [];
+
   for (let i = 0; i < numberOfDecks; i++) {
     for (const face in CARD_FACES) {
       for (const suit in CARD_SUITS) {
@@ -114,113 +143,208 @@ function createShoe(numberOfDecks) {
   shuffle(shoe);
 }
 createShoe(6);
-console.log(shoe);
 
-var cards = [];
-var cardDimensions = {
-  width: 137, 
-  height: 187
-};
+//-----------------------------------------------------------
+// Players
 
-function getCardTexture(card) {
-  return `./assets/cards/${CARD_SUITS[card.suit].texture}-${CARD_FACES[card.face].texture}.png`;
+let players = [];
+
+class Player {
+  constructor(username) {
+    this.username = username;
+    this.hand = [];
+
+    this.handContainer = new Container();
+    this.handContainer.sortableChildren = true; // Apparently, this is not performant (see pixijs/layers instead)
+    app.stage.addChild(this.handContainer);
+
+    players.push(this);
+  }
+
+  addCard() {
+    let card = shoe.pop();
+
+    // Create the sprite
+    let cardSprite = Sprite.from(getCardTexture(card));
+    cardSprite.width = CARD_DIMENSIONS.width;
+    cardSprite.height = CARD_DIMENSIONS.height;
+    cardSprite.position.set(this.hand.length * 30, this.hand.length * 30);
+    cardSprite.zIndex = this.hand.length;
+
+    // Add the sprite to the player's hand container
+    this.handContainer.addChild(cardSprite);
+
+    // Add the sprite to the card object
+    card.sprite = cardSprite;
+    
+    this.hand.push(card);
+  }
+
+  addCards(amount) {
+    for (let i = 0; i < amount; i++) this.addCard();
+  }
 }
 
-//function to add a card
-function addCard() {
-  var cardForObject = shoe.pop();
-  console.log(getCardTexture(cardForObject));
-  let card = {
-    'face': cardForObject.face,
-    'suit': cardForObject.suit,
-    'sprite': Sprite.from(getCardTexture(cardForObject))
-  };
+let dealer = new Player("Dealer");
+let player = new Player("Lame Guest");
 
-  app.stage.addChild(card.sprite);
-  cards.push(card);
+dealer.addCards(2);
+player.addCards(2);
 
-  //incrementing cardCoords to keep proper positioning between cards
+// Temporarily just move the hand containers
+player.handContainer.position.set(200, 100);
+dealer.handContainer.position.set(1320, 100);
 
-  card.sprite.width = cardDimensions.width;
-  card.sprite.height = cardDimensions.height;
+//-----------------------------------------------------------
+// Game logic
 
-  card.sprite.x = 200 + cards.length * 30;
-  card.sprite.y = 100 + cards.length * 30;
-}
+// TODO make this part of the container
+let faceDownCardSprite = Sprite.from('./assets/cards/card-back.png');
+faceDownCardSprite.width = CARD_DIMENSIONS.width;
+faceDownCardSprite.height = CARD_DIMENSIONS.height;
+faceDownCardSprite.position.set(30, 30);
+faceDownCardSprite.zIndex = 1;
+dealer.handContainer.addChild(faceDownCardSprite);
 
-addCard();
-addCard();
+// Boolean to check if it is players turn (you are not allowed to press buttons if it is not your turn!)
+let isPlayersTurn = true;
 
-console.log(cards);
+// Replacing one starter card sprite with card back sprite
+dealer.hand[1].sprite.visible = false;
 
-var handTotal = 0;
-//secondary hand total is for when you have aces in hand (i.e hand could be 5 or 15)
-var secondaryHandTotal = 0;
-var handTotalText = new Text('0', { fontFamily: 'Comic Sans', fontSize: 48, fill: 0xffffff });
+let playerHandTotal = 0;
+// Secondary hand total is for when you have aces in hand (i.e hand could be 5 or 15)
+let playerSecondaryHandTotal = 0;
+let dealerHandTotal = 0;
+let dealerSecondaryHandTotal = 0;
 
-handTotalText.x = 200;
-handTotalText.y = 500;
+let playerHandTotalText = new Text('0', { fontFamily: TEXT_FONT, fontSize: 48, fill: 0xffffff });
 
-app.stage.addChild(handTotalText);
+playerHandTotalText.position.set(200, 500);
 
-//function to get hand total and update handTotalText
-function getHandTotal() {
-  //reset hand totals
-  handTotal = 0;
-  secondaryHandTotal = 0;
-  let numberOfAces = 0;
-  for (const card of cards) {
-    if (CARD_FACES[card.face].value == 1) {
-      numberOfAces++;
+let dealerHandTotalText = new Text('0', { fontFamily: TEXT_FONT, fontSize: 48, fill: 0xffffff });
+dealerHandTotalText.position.set(1320, 500);
+dealerHandTotalText.visible = false;
+
+app.stage.addChild(playerHandTotalText);
+app.stage.addChild(dealerHandTotalText);
+
+// Function to get hand total and update handTotalText
+function getHandTotal(totalRecipient) {
+
+  if (totalRecipient == 'player') {
+    // Reset hand totals
+    playerHandTotal = 0;
+    playerSecondaryHandTotal = 0;
+    let numberOfAces = 0;
+    for (const card of player.hand) {
+      if (CARD_FACES[card.face].value == 1) {
+        numberOfAces++;
+      }
+      playerHandTotal += CARD_FACES[card.face].value;
     }
-    handTotal += CARD_FACES[card.face].value;
+
+    playerSecondaryHandTotal = playerHandTotal + 10 * numberOfAces;
+
+    if (playerSecondaryHandTotal == 21 && player.hand.length == 2) {
+      playerHandTotalText.text = BLACKJACK_DISPLAY_TEXT;
+    }
+
+    else if (playerHandTotal > 21) {
+      playerHandTotalText.text = playerHandTotal + " " + BUST_DISPLAY_TEXT; 
+    }
+
+    else if (playerHandTotal == 21 || playerSecondaryHandTotal == 21) {
+      playerHandTotalText.text = "21";
+    }
+
+    else if (numberOfAces == 0) {
+      playerHandTotalText.text = playerHandTotal;
+    }
+
+    else if (numberOfAces != 0 && playerSecondaryHandTotal > 21) {
+      playerHandTotalText.text = playerHandTotal;
+    }
+
+    else if (numberOfAces != 0) {
+      playerHandTotalText.text = playerHandTotal + "/" + playerSecondaryHandTotal;
+    }
   }
 
-  secondaryHandTotal = handTotal + 10 * numberOfAces;
-
-  if (secondaryHandTotal == 21 && cards.length == 2) {
-    handTotalText.text = BLACKJACK_DISPLAY_TEXT;
+  else if (totalRecipient == 'dealer') {
+    // Reset hand totals
+    dealerHandTotal = 0;
+    dealerSecondaryHandTotal = 0;
+    let numberOfAces = 0;
+    for (const card of dealer.hand) {
+      if (CARD_FACES[card.face].value == 1) {
+        numberOfAces++;
+      }
+      dealerHandTotal += CARD_FACES[card.face].value;
+    }
+    
+    dealerSecondaryHandTotal = dealerHandTotal + 10 * numberOfAces;
+    
+    if (dealerSecondaryHandTotal == 21 && dealer.hand.length == 2) {
+      dealerHandTotalText.text = BLACKJACK_DISPLAY_TEXT;
+    }
+    
+    else if (dealerHandTotal > 21) {
+      dealerHandTotalText.text = dealerHandTotal + " " + BUST_DISPLAY_TEXT; 
+    }
+    
+    else if (dealerHandTotal == 21 || dealerSecondaryHandTotal == 21) {
+      dealerHandTotalText.text = "21";
+    }
+    
+    else if (numberOfAces == 0) {
+      dealerHandTotalText.text = dealerHandTotal;
+    }
+    
+    else if (numberOfAces != 0 && dealerSecondaryHandTotal > 21) {
+      dealerHandTotalText.text = dealerHandTotal;
+    }
+    
+    else if (numberOfAces != 0) {
+      dealerHandTotalText.text = dealerHandTotal + "/" + dealerSecondaryHandTotal;
+    }
   }
+}
 
-  else if (handTotal > 21) {
-    handTotalText.text = handTotal + " " + BUST_DISPLAY_TEXT; 
+async function dealerTurn() {
+  dealer.addCard();
+  getHandTotal('dealer');
+  if (dealerHandTotal < 17 && dealerSecondaryHandTotal != 21) {
+    await sleep(1000);
+    dealerTurn();
   }
-
-  else if (handTotal == 21 || secondaryHandTotal == 21) {
-    handTotalText.text = "21";
-  }
-
-  else if (numberOfAces == 0) {
-    handTotalText.text = handTotal;
-  }
-
-  else if (numberOfAces != 0 && secondaryHandTotal > 21) {
-    handTotalText.text = handTotal;
-  }
-
-  else if (numberOfAces != 0) {
-    handTotalText.text = handTotal + "/" + secondaryHandTotal;
-  }
-  
 }
 
 function hit() {
-  //making sure that you don't have a blackjack or are over 21
-  if (handTotal < 21 && (handTotalText.text != BLACKJACK_DISPLAY_TEXT) && isPlayersTurn) {
-    addCard();
-    getHandTotal();
+  // Making sure that you don't have a blackjack or are over 21
+  if (playerHandTotal < 21 && (playerHandTotalText.text != BLACKJACK_DISPLAY_TEXT) && isPlayersTurn) {
+    player.addCard();
+    getHandTotal('player');
   }
 }
 
-function stand() {
+async function stand() {
   isPlayersTurn = false;
+  
+  dealerHandTotalText.visible = true;
+  dealer.hand[1].sprite.visible = true;
+  faceDownCardSprite.visible = false;
+  
+  if (dealerHandTotal < 17 && dealerSecondaryHandTotal != 21) {
+    await sleep(1000);
+    dealerTurn();
+  }
 }
 
-//adding button listeners HERE
+// Adding button listeners HERE
 hitButton.on("pointerup", hit);
 standButton.on("pointerup", stand);
 
-//getting hand total for when the program loads up
-getHandTotal();
-
-//-----------------------------------------------------------
+// Getting hand total for when the program loads up
+getHandTotal('player');
+getHandTotal('dealer');
