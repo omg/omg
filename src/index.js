@@ -210,7 +210,6 @@ dealer.handContainer.addChild(faceDownCardSprite);
 let isPlayersTurn = true;
 
 // Replacing one starter card sprite with card back sprite
-console.log(dealer.hand);
 dealer.hand[1].sprite.visible = false;
 
 let playerHandTotal = 0;
@@ -225,6 +224,7 @@ playerHandTotalText.position.set(200, 500);
 
 let dealerHandTotalText = new Text('0', { fontFamily: TEXT_FONT, fontSize: 48, fill: 0xffffff });
 dealerHandTotalText.position.set(1320, 500);
+dealerHandTotalText.visible = false;
 
 app.stage.addChild(playerHandTotalText);
 app.stage.addChild(dealerHandTotalText);
@@ -246,7 +246,7 @@ function getHandTotal(totalRecipient) {
 
     playerSecondaryHandTotal = playerHandTotal + 10 * numberOfAces;
 
-    if (playerSecondaryHandTotal == 21 && playerCards.length == 2) {
+    if (playerSecondaryHandTotal == 21 && player.hand.length == 2) {
       playerHandTotalText.text = BLACKJACK_DISPLAY_TEXT;
     }
 
@@ -285,7 +285,7 @@ function getHandTotal(totalRecipient) {
     
     dealerSecondaryHandTotal = dealerHandTotal + 10 * numberOfAces;
     
-    if (dealerSecondaryHandTotal == 21 && dealerCards.length == 2) {
+    if (dealerSecondaryHandTotal == 21 && dealer.hand.length == 2) {
       dealerHandTotalText.text = BLACKJACK_DISPLAY_TEXT;
     }
     
@@ -328,9 +328,14 @@ function hit() {
   }
 }
 
-function stand() {
+async function stand() {
   isPlayersTurn = false;
   if (dealerHandTotal < 17 && dealerSecondaryHandTotal != 21) {
+    dealerHandTotalText.visible = true; // Calling this unnecessarily every time
+    dealer.hand[1].sprite.visible = true;
+    faceDownCardSprite.visible = false;
+    
+    await sleep(1000);
     dealerTurn();
   }
 }
