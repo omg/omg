@@ -22,7 +22,7 @@ function resize() {
 	app.renderer.resize(window.innerWidth, window.innerHeight);
 
   // Reposition the action container
-  actionContainer.position.set(window.innerWidth / 2, window.innerHeight - 20);
+  actionContainer.position.set(window.innerWidth / 2, window.innerHeight - 60);
 }
 window.addEventListener('resize', resize);
 resize();
