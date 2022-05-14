@@ -6,6 +6,19 @@ body {
   overflow: hidden;
 }
 
+.modal {
+  position: fixed;
+  left: 50%;
+  bottom: 1em;
+  transform: translate(-50%, 0%);
+  max-width: calc(95vw - 2em);
+  max-height: calc(95vh - 2em);
+  text-align: center;
+  //padding: 1em;
+  width: fit-content;
+  block-size: fit-content;
+}
+
 canvas {
   display: block;
 }
