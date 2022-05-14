@@ -1,11 +1,13 @@
 import { Application, Sprite, Graphics, Text, Container } from 'pixi.js';
 import scss from './style.scss';
 
+//-----------------------------------------------------------
+// Application
+
 const app = new Application({
 	autoResize: true,
   resolution: devicePixelRatio 
 });
-
 document.body.appendChild(app.view);
 
 // Create the action container which will have the buttons
@@ -26,6 +28,7 @@ window.addEventListener('resize', resize);
 resize();
 
 //-----------------------------------------------------------
+// Utility
 
 function sleep(milliseconds) {
   return new Promise(resolve => {
@@ -49,6 +52,7 @@ function shuffle(array) {
 }
 
 //-----------------------------------------------------------
+// Constants
 
 const BLACKJACK_DISPLAY_TEXT = "Blackjack!";
 const BUST_DISPLAY_TEXT = "(Bust!)";
@@ -86,6 +90,7 @@ const CARD_SUITS = {
 const BUTTON_MARGIN = 12;
 
 //-----------------------------------------------------------
+// Buttons
 
 // Create action buttons
 let actionPosition = 0;
@@ -118,6 +123,7 @@ let standButton = createActionButton(156, 'STAND');
 actionContainerResized();
 
 //-----------------------------------------------------------
+// Game logic
 
 // TODO make this part of the container
 let faceDownCardSprite = Sprite.from('./assets/cards/card-back.png');
@@ -330,5 +336,3 @@ standButton.on("pointerup", stand);
 // Getting hand total for when the program loads up
 getHandTotal('player');
 getHandTotal('dealer');
-
-//-----------------------------------------------------------
