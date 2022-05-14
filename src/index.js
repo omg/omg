@@ -8,21 +8,22 @@ const app = new Application({
 
 document.body.appendChild(app.view);
 
-let container = new Container();
-container.pivot.set(133, 128);
-app.stage.addChild(container);
-
+// Create the action container which will have the buttons
+let actionContainer = new Container();
+actionContainer.pivot.set(133, 128);
+app.stage.addChild(actionContainer);
 
 // Listen for window resize events
-
-// Function to call when the app is resized
 function resize() {
-	// Resize the renderer
 	app.renderer.resize(window.innerWidth, window.innerHeight);
-  container.position.set(window.innerWidth / 2, window.innerHeight- 20);
+
+  // Reposition the action container
+  actionContainer.position.set(window.innerWidth / 2, window.innerHeight - 20);
 }
 window.addEventListener('resize', resize);
 resize();
+
+//-----------------------------------------------------------
 
 function sleep(milliseconds) {
   return new Promise(resolve => {
@@ -30,29 +31,21 @@ function sleep(milliseconds) {
   });
 }
 
-async function wait() {
-  await sleep(1000);
-}
-
 //-----------------------------------------------------------
-
-var cardDimensions = {
-  width: 137, 
-  height: 187
-};
-
-var cardBackSprite = Sprite.from('./assets/cards/card-back.png');
-cardBackSprite.width = cardDimensions.width;
-cardBackSprite.height = cardDimensions.height;
-cardBackSprite.position.set(1380, 160);
-cardBackSprite.zIndex = 2;
-app.stage.addChild(cardBackSprite);
 
 const BLACKJACK_DISPLAY_TEXT = "Blackjack!";
 const BUST_DISPLAY_TEXT = "(Bust!)";
 
+const BUTTON_COLOR = 0xFFFFFF;
+const TEXT_FONT = 'Comic Sans MS';
+
+const CARD_DIMENSIONS = {
+  width: 137, 
+  height: 187
+};
+
 const CARD_FACES = {
-  ["Ace"]: { value: 1, texture: "1" }, // ace is the exception to the value property!
+  ["Ace"]: { value: 1, texture: "1" }, // Ace is the exception to the value property!
   ["Deuce"]: { value: 2, texture: "2" },
   ["Three"]: { value: 3, texture: "3" },
   ["Four"]: { value: 4, texture: "4" },
@@ -62,11 +55,10 @@ const CARD_FACES = {
   ["Eight"]: { value: 8, texture: "8" },
   ["Nine"]: { value: 9, texture: "9" },
   ["Ten"]: { value: 10, texture: "10" },
-  ["Jack"]: { value: 10, texture: "11" }, // texture is 11 so that it's alphabetically ordered in File Explorer
+  ["Jack"]: { value: 10, texture: "11" }, // Texture is 11 so that it's alphabetically ordered in File Explorer
   ["Queen"]: { value: 10, texture: "12" },
   ["King"]: { value: 10, texture: "13" }
 };
-
 const CARD_SUITS = {
   ["Clubs"]: { texture: "clubs" },
   ["Diamonds"]: { texture: "diamonds" },
@@ -74,10 +66,15 @@ const CARD_SUITS = {
   ["Spades"]: { texture: "spades" }
 };
 
-//making buttons for bottom of the screen
-const BUTTON_COLOR = 0xFFFFFF;
+//-----------------------------------------------------------
 
-const FONT = 'Comic Sans MS';
+// TODO make this part of the container
+let faceDownCardSprite = Sprite.from('./assets/cards/card-back.png');
+faceDownCardSprite.width = CARD_DIMENSIONS.width;
+faceDownCardSprite.height = CARD_DIMENSIONS.height;
+faceDownCardSprite.position.set(1380, 160);
+faceDownCardSprite.zIndex = 2;
+app.stage.addChild(faceDownCardSprite);
 
 let hitButton = new Graphics();
 hitButton.beginFill(BUTTON_COLOR);
@@ -86,12 +83,12 @@ hitButton.endFill();
 hitButton.interactive = true;
 hitButton.buttonMode = true;
 
-//adding the text for the button as well
-var hitButtonText = new Text('HIT', { fontFamily: FONT, fontSize: 36, fill: 0x000000 });
+// Adding the text for the button as well
+let hitButtonText = new Text('HIT', { fontFamily: TEXT_FONT, fontSize: 36, fill: 0x000000 });
 hitButtonText.anchor.set(0.5, 0.5);
 hitButtonText.position.set(50, 25);
 
-container.addChild(hitButton);
+actionContainer.addChild(hitButton);
 hitButton.addChild(hitButtonText);
 
 let standButton = new Graphics();
@@ -102,15 +99,15 @@ standButton.endFill();
 standButton.interactive = true;
 standButton.buttonMode = true;
 
-var standButtonText = new Text('STAND', { fontFamily: FONT, fontSize: 36, fill: 0x000000 });
+let standButtonText = new Text('STAND', { fontFamily: TEXT_FONT, fontSize: 36, fill: 0x000000 });
 standButtonText.anchor.set(0.5, 0.5);
 standButtonText.position.set(78, 25)
 
-container.addChild(standButton);
+actionContainer.addChild(standButton);
 standButton.addChild(standButtonText);
 
-//boolean to check if it is players turn (you are not allowed to press buttons if it is not your turn!)
-var isPlayersTurn = true;
+// Boolean to check if it is players turn (you are not allowed to press buttons if it is not your turn!)
+let isPlayersTurn = true;
 
 function shuffle(array) {
   let currentIndex = array.length, temporaryValue, randomIndex;
@@ -131,9 +128,9 @@ function shuffle(array) {
   return array;
 }
 
-var shoe = [];
+let shoe = [];
 
-//function to create shoe
+// Function to create shoe
 function createShoe(numberOfDecks) {
   for (let i = 0; i < numberOfDecks; i++) {
     for (const face in CARD_FACES) {
@@ -147,17 +144,17 @@ function createShoe(numberOfDecks) {
 createShoe(6);
 console.log(shoe);
 
-var playerCards = [];
-var dealerCards = [];
+let playerCards = [];
+let dealerCards = [];
 
 function getCardTexture(card) {
   return `./assets/cards/${CARD_SUITS[card.suit].texture}-${CARD_FACES[card.face].texture}.png`;
 }
 
-//function to add a card
+// Function to add a card
 function addCard(cardRecipient) {
   if (cardRecipient == 'player') {
-    var cardForObject = shoe.pop();
+    let cardForObject = shoe.pop();
     console.log(getCardTexture(cardForObject));
     let card = {
       'face': cardForObject.face,
@@ -168,15 +165,13 @@ function addCard(cardRecipient) {
     app.stage.addChild(card.sprite);
     playerCards.push(card);
 
-    //incrementing cardCoords to keep proper positioning between cards
-
-    card.sprite.width = cardDimensions.width;
-    card.sprite.height = cardDimensions.height;
+    card.sprite.width = CARD_DIMENSIONS.width;
+    card.sprite.height = CARD_DIMENSIONS.height;
     card.sprite.position.set(200 + playerCards.length * 30, 100 + playerCards.length * 30);
   }
 
   else if (cardRecipient == 'dealer') {
-    var cardForObject = shoe.pop();
+    let cardForObject = shoe.pop();
     console.log(getCardTexture(cardForObject));
     let card = {
       'face': cardForObject.face,
@@ -187,10 +182,8 @@ function addCard(cardRecipient) {
     app.stage.addChild(card.sprite);
     dealerCards.push(card);
 
-    //incrementing cardCoords to keep proper positioning between cards
-
-    card.sprite.width = cardDimensions.width;
-    card.sprite.height = cardDimensions.height;
+    card.sprite.width = CARD_DIMENSIONS.width;
+    card.sprite.height = CARD_DIMENSIONS.height;
     card.sprite.position.set(1320 + dealerCards.length * 30, 100 + dealerCards.length * 30)
   }
 }
@@ -202,31 +195,31 @@ addCard('dealer');
 addCard('dealer');
 
 
-//replacing one starter card sprite with card back sprite
+// Replacing one starter card sprite with card back sprite
 dealerCards[1].sprite.visible = false;
 console.log(playerCards);
 
-var playerHandTotal = 0;
-//secondary hand total is for when you have aces in hand (i.e hand could be 5 or 15)
-var playerSecondaryHandTotal = 0;
-var dealerHandTotal = 0;
-var dealerSecondaryHandTotal = 0;
+let playerHandTotal = 0;
+// Secondary hand total is for when you have aces in hand (i.e hand could be 5 or 15)
+let playerSecondaryHandTotal = 0;
+let dealerHandTotal = 0;
+let dealerSecondaryHandTotal = 0;
 
-var playerHandTotalText = new Text('0', { fontFamily: FONT, fontSize: 48, fill: 0xffffff });
+let playerHandTotalText = new Text('0', { fontFamily: TEXT_FONT, fontSize: 48, fill: 0xffffff });
 
 playerHandTotalText.position.set(200, 500);
 
-var dealerHandTotalText = new Text('0', { fontFamily: FONT, fontSize: 48, fill: 0xffffff });
+let dealerHandTotalText = new Text('0', { fontFamily: TEXT_FONT, fontSize: 48, fill: 0xffffff });
 dealerHandTotalText.position.set(1320, 500);
 
 app.stage.addChild(playerHandTotalText);
 app.stage.addChild(dealerHandTotalText);
 
-//function to get hand total and update handTotalText
+// Function to get hand total and update handTotalText
 function getHandTotal(totalRecipient) {
 
   if (totalRecipient == 'player') {
-    //reset hand totals
+    // Reset hand totals
     playerHandTotal = 0;
     playerSecondaryHandTotal = 0;
     let numberOfAces = 0;
@@ -265,7 +258,7 @@ function getHandTotal(totalRecipient) {
   }
 
   else if (totalRecipient == 'dealer') {
-    //reset hand totals
+    // Reset hand totals
     dealerHandTotal = 0;
     dealerSecondaryHandTotal = 0;
     let numberOfAces = 0;
@@ -314,7 +307,7 @@ async function dealerTurn() {
 }
 
 function hit() {
-  //making sure that you don't have a blackjack or are over 21
+  // Making sure that you don't have a blackjack or are over 21
   if (playerHandTotal < 21 && (playerHandTotalText.text != BLACKJACK_DISPLAY_TEXT) && isPlayersTurn) {
     addCard('player');
     getHandTotal('player');
@@ -328,11 +321,11 @@ function stand() {
   }
 }
 
-//adding button listeners HERE
+// Adding button listeners HERE
 hitButton.on("pointerup", hit);
 standButton.on("pointerup", stand);
 
-//getting hand total for when the program loads up
+// Getting hand total for when the program loads up
 getHandTotal('player');
 getHandTotal('dealer');
 
