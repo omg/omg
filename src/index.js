@@ -10,7 +10,9 @@ document.body.appendChild(app.view);
 
 // Create the action container which will have the buttons
 let actionContainer = new Container();
-actionContainer.pivot.set(133, 50);
+function actionContainerResized() {
+  actionContainer.pivot.set(actionContainer.width / 2, 50);
+}
 app.stage.addChild(actionContainer);
 
 // Listen for window resize events
@@ -66,6 +68,8 @@ const CARD_SUITS = {
   ["Spades"]: { texture: "spades" }
 };
 
+const BUTTON_MARGIN = 12;
+
 //-----------------------------------------------------------
 
 // TODO make this part of the container
@@ -76,35 +80,35 @@ faceDownCardSprite.position.set(1380, 160);
 faceDownCardSprite.zIndex = 2;
 app.stage.addChild(faceDownCardSprite);
 
-let hitButton = new Graphics();
-hitButton.beginFill(BUTTON_COLOR);
-hitButton.drawRect(0, 0, 100, 50);
-hitButton.endFill();
-hitButton.interactive = true;
-hitButton.buttonMode = true;
+// Create action buttons
+let actionPosition = 0;
+function createActionButton(width, text) {
+  // Create new button at current position and move the pointer
+  let newButton = new Graphics()
+    .beginFill(BUTTON_COLOR)
+    .drawRect(0, 0, width, 50)
+    .endFill();
+  newButton.interactive = true;
+  newButton.buttonMode = true;
 
-// Adding the text for the button as well
-let hitButtonText = new Text('HIT', { fontFamily: TEXT_FONT, fontSize: 36, fill: 0x000000 });
-hitButtonText.anchor.set(0.5, 0.5);
-hitButtonText.position.set(50, 25);
+  newButton.x = actionPosition;
+  actionPosition += width + BUTTON_MARGIN;
 
-actionContainer.addChild(hitButton);
-hitButton.addChild(hitButtonText);
+  // Create text at the center of the button
+  let buttonText = new Text(text, { fontFamily: TEXT_FONT, fontSize: 36, fill: 0x000000 });
+  buttonText.anchor.set(0.5, 0.5);
+  buttonText.position.set(width / 2, 25);
 
-let standButton = new Graphics();
-standButton.beginFill(BUTTON_COLOR);
-standButton.drawRect(0, 0, 156, 50);
-standButton.x = 112;
-standButton.endFill();
-standButton.interactive = true;
-standButton.buttonMode = true;
+  // Add text and button as children
+  newButton.addChild(buttonText);
+  actionContainer.addChild(newButton);
 
-let standButtonText = new Text('STAND', { fontFamily: TEXT_FONT, fontSize: 36, fill: 0x000000 });
-standButtonText.anchor.set(0.5, 0.5);
-standButtonText.position.set(78, 25)
+  return newButton;
+}
 
-actionContainer.addChild(standButton);
-standButton.addChild(standButtonText);
+let hitButton = createActionButton(100, 'HIT');
+let standButton = createActionButton(156, 'STAND');
+actionContainerResized();
 
 // Boolean to check if it is players turn (you are not allowed to press buttons if it is not your turn!)
 let isPlayersTurn = true;
