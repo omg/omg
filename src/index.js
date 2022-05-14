@@ -144,10 +144,6 @@ function createShoe(numberOfDecks) {
 }
 createShoe(6);
 
-function addCards(player, amount) {
-  for (let i = 0; i < amount; i++) addCard(player);
-}
-
 //-----------------------------------------------------------
 // Players
 
@@ -159,6 +155,7 @@ class Player {
     this.hand = [];
 
     this.handContainer = new Container();
+    app.stage.addChild(this.handContainer);
 
     players.push(this);
   }
@@ -177,6 +174,8 @@ class Player {
 
     // Add the sprite to the card object
     card.sprite = cardSprite;
+    
+    this.hand.push(card);
   }
 
   addCards(amount) {
@@ -205,8 +204,8 @@ app.stage.addChild(faceDownCardSprite);
 let isPlayersTurn = true;
 
 // Replacing one starter card sprite with card back sprite
-dealerCards[1].sprite.visible = false;
-console.log(playerCards);
+console.log(dealer.hand);
+dealer.hand[1].sprite.visible = false;
 
 let playerHandTotal = 0;
 // Secondary hand total is for when you have aces in hand (i.e hand could be 5 or 15)
@@ -232,7 +231,7 @@ function getHandTotal(totalRecipient) {
     playerHandTotal = 0;
     playerSecondaryHandTotal = 0;
     let numberOfAces = 0;
-    for (const card of playerCards) {
+    for (const card of player.hand) {
       if (CARD_FACES[card.face].value == 1) {
         numberOfAces++;
       }
@@ -271,7 +270,7 @@ function getHandTotal(totalRecipient) {
     dealerHandTotal = 0;
     dealerSecondaryHandTotal = 0;
     let numberOfAces = 0;
-    for (const card of dealerCards) {
+    for (const card of dealer.hand) {
       if (CARD_FACES[card.face].value == 1) {
         numberOfAces++;
       }
