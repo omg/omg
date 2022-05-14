@@ -310,7 +310,7 @@ function getHandTotal(totalRecipient) {
 }
 
 async function dealerTurn() {
-  addCard('dealer');
+  dealer.addCard();
   getHandTotal('dealer');
   if (dealerHandTotal < 17 && dealerSecondaryHandTotal != 21) {
     await sleep(1000);
@@ -321,7 +321,7 @@ async function dealerTurn() {
 function hit() {
   // Making sure that you don't have a blackjack or are over 21
   if (playerHandTotal < 21 && (playerHandTotalText.text != BLACKJACK_DISPLAY_TEXT) && isPlayersTurn) {
-    addCard('player');
+    player.addCard();
     getHandTotal('player');
   }
 }
@@ -329,7 +329,7 @@ function hit() {
 function stand() {
   isPlayersTurn = false;
   if (dealerHandTotal < 17 && dealerSecondaryHandTotal != 21) {
-  dealerTurn();
+    dealerTurn();
   }
 }
 
