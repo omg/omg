@@ -51,6 +51,10 @@ function shuffle(array) {
   return array;
 }
 
+function getCardTexture(card) {
+  return `./assets/cards/${CARD_SUITS[card.suit].texture}-${CARD_FACES[card.face].texture}.png`;
+}
+
 //-----------------------------------------------------------
 // Constants
 
@@ -123,6 +127,70 @@ let standButton = createActionButton(156, 'STAND');
 actionContainerResized();
 
 //-----------------------------------------------------------
+// Shoe
+
+let shoe;
+function createShoe(numberOfDecks) {
+  shoe = [];
+
+  for (let i = 0; i < numberOfDecks; i++) {
+    for (const face in CARD_FACES) {
+      for (const suit in CARD_SUITS) {
+        shoe.push({ face, suit });
+      }
+    }
+  }
+  shuffle(shoe);
+}
+createShoe(6);
+
+function addCards(player, amount) {
+  for (let i = 0; i < amount; i++) addCard(player);
+}
+
+//-----------------------------------------------------------
+// Players
+
+let players = [];
+
+class Player {
+  constructor(username) {
+    this.username = username;
+    this.hand = [];
+
+    this.handContainer = new Container();
+
+    players.push(this);
+  }
+
+  addCard() {
+    let card = shoe.pop();
+
+    // Create the sprite
+    let cardSprite = Sprite.from(getCardTexture(card));
+    cardSprite.width = CARD_DIMENSIONS.width;
+    cardSprite.height = CARD_DIMENSIONS.height;
+    cardSprite.position.set(this.hand.length * 30, this.hand.length * 30);
+
+    // Add the sprite to the player's hand container
+    this.handContainer.addChild(cardSprite);
+
+    // Add the sprite to the card object
+    card.sprite = cardSprite;
+  }
+
+  addCards(amount) {
+    for (let i = 0; i < amount; i++) this.addCard();
+  }
+}
+
+let dealer = new Player("Dealer");
+let player = new Player("Lame Guest");
+
+dealer.addCards(2);
+player.addCards(2);
+
+//-----------------------------------------------------------
 // Game logic
 
 // TODO make this part of the container
@@ -135,73 +203,6 @@ app.stage.addChild(faceDownCardSprite);
 
 // Boolean to check if it is players turn (you are not allowed to press buttons if it is not your turn!)
 let isPlayersTurn = true;
-
-let shoe = [];
-
-// Function to create shoe
-function createShoe(numberOfDecks) {
-  for (let i = 0; i < numberOfDecks; i++) {
-    for (const face in CARD_FACES) {
-      for (const suit in CARD_SUITS) {
-        shoe.push({ face, suit });
-      }
-    }
-  }
-  shuffle(shoe);
-}
-createShoe(6);
-console.log(shoe);
-
-let playerCards = [];
-let dealerCards = [];
-
-function getCardTexture(card) {
-  return `./assets/cards/${CARD_SUITS[card.suit].texture}-${CARD_FACES[card.face].texture}.png`;
-}
-
-// Function to add a card
-function addCard(cardRecipient) {
-  if (cardRecipient == 'player') {
-    let cardForObject = shoe.pop();
-    console.log(getCardTexture(cardForObject));
-    let card = {
-      'face': cardForObject.face,
-      'suit': cardForObject.suit,
-      'sprite': Sprite.from(getCardTexture(cardForObject))
-    };
-
-    app.stage.addChild(card.sprite);
-    playerCards.push(card);
-
-    card.sprite.width = CARD_DIMENSIONS.width;
-    card.sprite.height = CARD_DIMENSIONS.height;
-    card.sprite.position.set(200 + playerCards.length * 30, 100 + playerCards.length * 30);
-  }
-
-  else if (cardRecipient == 'dealer') {
-    let cardForObject = shoe.pop();
-    console.log(getCardTexture(cardForObject));
-    let card = {
-      'face': cardForObject.face,
-      'suit': cardForObject.suit,
-      'sprite': Sprite.from(getCardTexture(cardForObject))
-    };
-
-    app.stage.addChild(card.sprite);
-    dealerCards.push(card);
-
-    card.sprite.width = CARD_DIMENSIONS.width;
-    card.sprite.height = CARD_DIMENSIONS.height;
-    card.sprite.position.set(1320 + dealerCards.length * 30, 100 + dealerCards.length * 30)
-  }
-}
-
-addCard('player');
-addCard('player');
-
-addCard('dealer');
-addCard('dealer');
-
 
 // Replacing one starter card sprite with card back sprite
 dealerCards[1].sprite.visible = false;
