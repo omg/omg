@@ -10,7 +10,7 @@ document.body.appendChild(app.view);
 
 // Create the action container which will have the buttons
 let actionContainer = new Container();
-actionContainer.pivot.set(133, 128);
+actionContainer.pivot.set(133, 50);
 app.stage.addChild(actionContainer);
 
 // Listen for window resize events
