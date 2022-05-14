@@ -155,6 +155,7 @@ class Player {
     this.hand = [];
 
     this.handContainer = new Container();
+    this.handContainer.sortableChildren = true; // Apparently, this is not performant (see pixijs/layers instead)
     app.stage.addChild(this.handContainer);
 
     players.push(this);
@@ -168,6 +169,7 @@ class Player {
     cardSprite.width = CARD_DIMENSIONS.width;
     cardSprite.height = CARD_DIMENSIONS.height;
     cardSprite.position.set(this.hand.length * 30, this.hand.length * 30);
+    cardSprite.zIndex = this.hand.length;
 
     // Add the sprite to the player's hand container
     this.handContainer.addChild(cardSprite);
@@ -200,9 +202,9 @@ dealer.handContainer.position.set(1320, 100);
 let faceDownCardSprite = Sprite.from('./assets/cards/card-back.png');
 faceDownCardSprite.width = CARD_DIMENSIONS.width;
 faceDownCardSprite.height = CARD_DIMENSIONS.height;
-faceDownCardSprite.position.set(1350, 130);
-faceDownCardSprite.zIndex = 2;
-app.stage.addChild(faceDownCardSprite);
+faceDownCardSprite.position.set(30, 30);
+faceDownCardSprite.zIndex = 1;
+dealer.handContainer.addChild(faceDownCardSprite);
 
 // Boolean to check if it is players turn (you are not allowed to press buttons if it is not your turn!)
 let isPlayersTurn = true;
