@@ -189,6 +189,10 @@ let player = new Player("Lame Guest");
 dealer.addCards(2);
 player.addCards(2);
 
+// Temporarily just move the hand containers
+player.handContainer.position.set(200, 100);
+dealer.handContainer.position.set(1320, 100);
+
 //-----------------------------------------------------------
 // Game logic
 
@@ -196,7 +200,7 @@ player.addCards(2);
 let faceDownCardSprite = Sprite.from('./assets/cards/card-back.png');
 faceDownCardSprite.width = CARD_DIMENSIONS.width;
 faceDownCardSprite.height = CARD_DIMENSIONS.height;
-faceDownCardSprite.position.set(1380, 160);
+faceDownCardSprite.position.set(1350, 130);
 faceDownCardSprite.zIndex = 2;
 app.stage.addChild(faceDownCardSprite);
 
