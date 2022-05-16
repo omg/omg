@@ -153,6 +153,7 @@ class Player {
   constructor(username) {
     this.username = username;
     this.hand = [];
+    this.money = 5000; 
 
     this.handContainer = new Container();
     this.handContainer.sortableChildren = true; // Apparently, this is not performant (see pixijs/layers instead)
@@ -199,6 +200,13 @@ dealer.handContainer.position.set(1320, 100);
 // Game logic
 
 // TODO make this part of the container
+
+let moneyText = new Text(player.money, { fontFamily: TEXT_FONT, fontSize: 48, fill: 0xffffff });
+moneyText.position.set(960, 700);
+moneyText.visible = true;
+app.stage.addChild(moneyText);
+
+// Face down card sprite for initial dealer hand (player should only be able to see one upcard from the dealer)
 let faceDownCardSprite = Sprite.from('./assets/cards/card-back.png');
 faceDownCardSprite.width = CARD_DIMENSIONS.width;
 faceDownCardSprite.height = CARD_DIMENSIONS.height;
