@@ -201,33 +201,6 @@ dealer.handContainer.position.set(1320, 100);
 
 // TODO make this part of the container
 
-// Text variable that displays money on the screen
-let moneyText = new Text(player.money, { fontFamily: TEXT_FONT, fontSize: 48, fill: 0xffffff });
-moneyText.position.set(960, 700);
-moneyText.visible = true;
-app.stage.addChild(moneyText);
-
-let hasBet = false;
-
-// Making this a separate function for now because there will be more to this later on
-function betMoney() {
-  if (!hasBet && document.getElementById("money_input").value <= player.money) {
-    hasBet = true;
-    player.money = player.money - document.getElementById("money_input").value;
-    moneyText.text = player.money;
-  }
-}
-
-// Grabbing input field
-let moneyInput = document.getElementById("money_input");
-
-moneyInput.addEventListener("keypress", function(event) {
-  if (event.key === "Enter") {
-    betMoney();
-  }
-});
-
-
 // Face down card sprite for initial dealer hand (player should only be able to see one upcard from the dealer)
 let faceDownCardSprite = Sprite.from('./assets/cards/card-back.png');
 faceDownCardSprite.width = CARD_DIMENSIONS.width;
@@ -374,6 +347,37 @@ async function stand() {
 // Adding button listeners HERE
 hitButton.on("pointerup", hit);
 standButton.on("pointerup", stand);
+
+// Text variable that displays money on the screen
+let moneyText = new Text(player.money, { fontFamily: TEXT_FONT, fontSize: 48, fill: 0xffffff });
+moneyText.position.set(960, 700);
+moneyText.visible = true;
+app.stage.addChild(moneyText);
+
+let hasBet = false;
+
+function startHand() {
+  //TO DO WRITE TURN LOGIC HERE AND LET THE USER PLAY THE FUCKING GAME
+}
+
+// Grabbing input field
+let moneyInput = document.getElementById("money_input");
+
+// Making this a separate function for now because there will be more to this later on
+function betMoney() {
+  if (!hasBet && moneyInput.value <= player.money) {
+    hasBet = true;
+    moneyInput.className = "modal hidden";
+    player.money = player.money - document.getElementById("money_input").value;
+    moneyText.text = player.money;
+  }
+}
+
+moneyInput.addEventListener("keypress", function(event) {
+  if (event.key === "Enter") {
+    betMoney();
+  }
+});
 
 // Getting hand total for when the program loads up
 getHandTotal('player');
