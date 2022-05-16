@@ -207,10 +207,15 @@ moneyText.position.set(960, 700);
 moneyText.visible = true;
 app.stage.addChild(moneyText);
 
+let hasBet = false;
+
 // Making this a separate function for now because there will be more to this later on
 function betMoney() {
-  player.money = player.money - document.getElementById("money_input").value;
-  moneyText.text = player.money;
+  if (!hasBet && document.getElementById("money_input").value <= player.money) {
+    hasBet = true;
+    player.money = player.money - document.getElementById("money_input").value;
+    moneyText.text = player.money;
+  }
 }
 
 // Grabbing input field
@@ -219,7 +224,6 @@ let moneyInput = document.getElementById("money_input");
 moneyInput.addEventListener("keypress", function(event) {
   if (event.key === "Enter") {
     betMoney();
-    console.log(player.money);
   }
 });
 
