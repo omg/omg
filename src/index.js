@@ -355,6 +355,8 @@ moneyText.visible = true;
 app.stage.addChild(moneyText);
 
 let hasBet = false;
+// Current bet needs to be stored from turn to turn so that player can be paid out and so that double downs and splits can be processed correctly
+let currentBet;
 
 function startHand() {
   //TO DO WRITE TURN LOGIC HERE AND LET THE USER PLAY THE FUCKING GAME
@@ -368,6 +370,7 @@ function betMoney() {
   if (!hasBet && moneyInput.value <= player.money) {
     hasBet = true;
     moneyInput.className = "modal hidden";
+    currentBet = moneyInput.value;
     player.money = player.money - document.getElementById("money_input").value;
     moneyText.text = player.money;
   }
