@@ -263,9 +263,6 @@ class Player {
 let dealer = new Player("Dealer");
 let player = new Player("Lame Guest");
 
-// The dealer is a special type of player, so they technically have a bet too, but it should never be shown
-dealer.moneyText.visible = false;
-
 moneyInput.addEventListener("keypress", function(event) {
   if (event.key === "Enter" && !hasBet) {
     hasBet = true;
@@ -292,6 +289,12 @@ faceDownCardSprite.height = CARD_DIMENSIONS.height;
 faceDownCardSprite.position.set(30, 30);
 faceDownCardSprite.zIndex = 1;
 dealer.handContainer.addChild(faceDownCardSprite);
+
+// The dealer's hand total should not be visible before their first card is revealed
+dealer.handTotalText.visible = false;
+
+// The dealer is a special type of player, so they technically have a bet too, but it should never be shown
+dealer.moneyText.visible = false;
 
 // Boolean to check if it is players turn (you are not allowed to press buttons if it is not your turn!)
 let isPlayersTurn = true;
