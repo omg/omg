@@ -263,13 +263,6 @@ class Player {
 let dealer = new Player("Dealer");
 let player = new Player("Lame Guest");
 
-moneyInput.addEventListener("keypress", function(event) {
-  if (event.key === "Enter" && !hasBet) {
-    hasBet = true;
-    player.betMoney();
-  }
-});
-
 dealer.addCards(2);
 player.addCards(2);
 
@@ -331,10 +324,29 @@ async function stand() {
   }
 }
 
+async function checkForBlackJack(player) {
+  if (player.handTotalText.text == BLACKJACK_DISPLAY_TEXT) {
+    await sleep(1000);
+    stand();
+  }
+}
+
 // Adding button listeners HERE
 hitButton.on("pointerup", hit);
 standButton.on("pointerup", stand);
 
+//TEST DELETE LATER
+player.handTotalText.text = BLACKJACK_DISPLAY_TEXT;
+
 function startHand() {
   //TO DO WRITE TURN LOGIC HERE AND LET THE USER PLAY THE FUCKING GAME
+  checkForBlackJack(player);
 }
+
+moneyInput.addEventListener("keypress", function(event) {
+  if (event.key === "Enter" && !hasBet) {
+    hasBet = true;
+    player.betMoney();
+    startHand();
+  }
+});
