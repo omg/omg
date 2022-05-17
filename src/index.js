@@ -171,9 +171,17 @@ class Player {
     // Txt variable that displays money on screen
     this.moneyText = new Text("$" + this.money, { fontFamily: TEXT_FONT, fontSize: 48, fill: 0xffffff });
     this.moneyText.position.set(0, 520);
-    this.moneyText.visible = true;
     this.handContainer.addChild(this.moneyText);
 
+    this.handTotal = 0;
+    // Secondary hand total is for when you have aces in hand (i.e hand could be 5 or 15)
+    this.secondaryHandTotal = 0;
+
+    this.handTotalText = new Text('0', { fontFamily: TEXT_FONT, fontSize: 48, fill: 0xffffff });
+    this.handTotalText.position.set(0, 450);
+    
+    this.handContainer.addChild(this.handTotalText);
+    
     players.push(this);
   }
 
@@ -194,6 +202,7 @@ class Player {
     card.sprite = cardSprite;
     
     this.hand.push(card);
+    this.getHandTotal();
   }
 
   addCards(amount) {
@@ -206,14 +215,55 @@ class Player {
       moneyInput.className = "modal hidden";
       this.bet = moneyInput.value;
       this.money = this.money - moneyInput.value;
-      this.moneyText.text = this.money;
+      this.moneyText.text = "$" + this.money;
     }
   }
+
+  // Function to get hand total and update handTotalText
+  getHandTotal() {
+    // Reset hand totals
+    this.handTotal = 0;
+    this.secondaryHandTotal = 0;
+    let numberOfAces = 0;
+    for (const card of this.hand) {
+      if (CARD_FACES[card.face].value == 1) {
+        numberOfAces++;
+      }
+      this.handTotal += CARD_FACES[card.face].value;
+     }
+
+    this.secondaryHandTotal = this.handTotal + 10 * numberOfAces;
+
+     if (this.secondaryHandTotal == 21 && this.hand.length == 2) {
+      this.handTotalText.text = BLACKJACK_DISPLAY_TEXT;
+    }
+
+    else if (this.handTotal > 21) {
+       this.handTotalText.text = this.handTotal + " " + BUST_DISPLAY_TEXT; 
+     }
+
+     else if (this.handTotal == 21 || this.secondaryHandTotal == 21) {
+       this.handTotalText.text = "21";
+     }
+
+     else if (numberOfAces == 0) {
+      this.handTotalText.text = this.handTotal;
+     }
+
+     else if (numberOfAces != 0 && this.secondaryHandTotal > 21) {
+      this.handTotalText.text = this.handTotal;
+    }
+
+    else if (numberOfAces != 0) {
+       this.handTotalText.text = this.handTotal + "/" + this.secondaryHandTotal;
+     }
+   }
 }
 
 let dealer = new Player("Dealer");
 let player = new Player("Lame Guest");
 
+// The dealer is a special type of player, so they technically have a bet too, but it should never be shown
 dealer.moneyText.visible = false;
 
 moneyInput.addEventListener("keypress", function(event) {
@@ -249,105 +299,6 @@ let isPlayersTurn = true;
 // Replacing one starter card sprite with card back sprite
 dealer.hand[1].sprite.visible = false;
 
-let playerHandTotal = 0;
-// Secondary hand total is for when you have aces in hand (i.e hand could be 5 or 15)
-let playerSecondaryHandTotal = 0;
-let dealerHandTotal = 0;
-let dealerSecondaryHandTotal = 0;
-
-let playerHandTotalText = new Text('0', { fontFamily: TEXT_FONT, fontSize: 48, fill: 0xffffff });
-
-playerHandTotalText.position.set(200, 500);
-
-let dealerHandTotalText = new Text('0', { fontFamily: TEXT_FONT, fontSize: 48, fill: 0xffffff });
-dealerHandTotalText.position.set(1320, 500);
-dealerHandTotalText.visible = false;
-
-app.stage.addChild(playerHandTotalText);
-app.stage.addChild(dealerHandTotalText);
-
-// Function to get hand total and update handTotalText
-function getHandTotal(totalRecipient) {
-
-  if (totalRecipient == 'player') {
-    // Reset hand totals
-    playerHandTotal = 0;
-    playerSecondaryHandTotal = 0;
-    let numberOfAces = 0;
-    for (const card of player.hand) {
-      if (CARD_FACES[card.face].value == 1) {
-        numberOfAces++;
-      }
-      playerHandTotal += CARD_FACES[card.face].value;
-    }
-
-    playerSecondaryHandTotal = playerHandTotal + 10 * numberOfAces;
-
-    if (playerSecondaryHandTotal == 21 && player.hand.length == 2) {
-      playerHandTotalText.text = BLACKJACK_DISPLAY_TEXT;
-    }
-
-    else if (playerHandTotal > 21) {
-      playerHandTotalText.text = playerHandTotal + " " + BUST_DISPLAY_TEXT; 
-    }
-
-    else if (playerHandTotal == 21 || playerSecondaryHandTotal == 21) {
-      playerHandTotalText.text = "21";
-    }
-
-    else if (numberOfAces == 0) {
-      playerHandTotalText.text = playerHandTotal;
-    }
-
-    else if (numberOfAces != 0 && playerSecondaryHandTotal > 21) {
-      playerHandTotalText.text = playerHandTotal;
-    }
-
-    else if (numberOfAces != 0) {
-      playerHandTotalText.text = playerHandTotal + "/" + playerSecondaryHandTotal;
-    }
-  }
-
-  else if (totalRecipient == 'dealer') {
-    // Reset hand totals
-    dealerHandTotal = 0;
-    dealerSecondaryHandTotal = 0;
-    let numberOfAces = 0;
-    for (const card of dealer.hand) {
-      if (CARD_FACES[card.face].value == 1) {
-        numberOfAces++;
-      }
-      dealerHandTotal += CARD_FACES[card.face].value;
-    }
-    
-    dealerSecondaryHandTotal = dealerHandTotal + 10 * numberOfAces;
-    
-    if (dealerSecondaryHandTotal == 21 && dealer.hand.length == 2) {
-      dealerHandTotalText.text = BLACKJACK_DISPLAY_TEXT;
-    }
-    
-    else if (dealerHandTotal > 21) {
-      dealerHandTotalText.text = dealerHandTotal + " " + BUST_DISPLAY_TEXT; 
-    }
-    
-    else if (dealerHandTotal == 21 || dealerSecondaryHandTotal == 21) {
-      dealerHandTotalText.text = "21";
-    }
-    
-    else if (numberOfAces == 0) {
-      dealerHandTotalText.text = dealerHandTotal;
-    }
-    
-    else if (numberOfAces != 0 && dealerSecondaryHandTotal > 21) {
-      dealerHandTotalText.text = dealerHandTotal;
-    }
-    
-    else if (numberOfAces != 0) {
-      dealerHandTotalText.text = dealerHandTotal + "/" + dealerSecondaryHandTotal;
-    }
-  }
-}
-
 async function dealerTurn() {
   dealer.addCard();
   getHandTotal('dealer');
@@ -359,20 +310,19 @@ async function dealerTurn() {
 
 function hit() {
   // Making sure that you don't have a blackjack or are over 21
-  if (playerHandTotal < 21 && (playerHandTotalText.text != BLACKJACK_DISPLAY_TEXT) && isPlayersTurn) {
+  if (player.handTotal < 21 && (player.handTotalText.text != BLACKJACK_DISPLAY_TEXT) && isPlayersTurn) {
     player.addCard();
-    getHandTotal('player');
   }
 }
 
 async function stand() {
   isPlayersTurn = false;
   
-  dealerHandTotalText.visible = true;
+  dealer.handTotalText.visible = true;
   dealer.hand[1].sprite.visible = true;
   faceDownCardSprite.visible = false;
   
-  if (dealerHandTotal < 17 && dealerSecondaryHandTotal != 21) {
+  if (dealer.handTotal < 17 && dealer.secondaryHandTotal != 21) {
     await sleep(1000);
     dealerTurn();
   }
@@ -381,10 +331,6 @@ async function stand() {
 // Adding button listeners HERE
 hitButton.on("pointerup", hit);
 standButton.on("pointerup", stand);
-
-// Getting hand total for when the program loads up
-getHandTotal('player');
-getHandTotal('dealer');
 
 function startHand() {
   //TO DO WRITE TURN LOGIC HERE AND LET THE USER PLAY THE FUCKING GAME
