@@ -155,6 +155,13 @@ class Player {
     this.hand = [];
     this.money = 5000; 
 
+
+    // Txt variable that displays money on screen
+    this.moneyText = new Text(this.money, { fontFamily: TEXT_FONT, fontSize: 48, fill: 0xffffff });
+    this.moneyText.position.set(960,700);
+    this.moneyText.visible = true;
+    app.stage.addChild(this.moneyText);
+
     this.handContainer = new Container();
     this.handContainer.sortableChildren = true; // Apparently, this is not performant (see pixijs/layers instead)
     app.stage.addChild(this.handContainer);
@@ -347,12 +354,6 @@ async function stand() {
 // Adding button listeners HERE
 hitButton.on("pointerup", hit);
 standButton.on("pointerup", stand);
-
-// Text variable that displays money on the screen
-let moneyText = new Text(player.money, { fontFamily: TEXT_FONT, fontSize: 48, fill: 0xffffff });
-moneyText.position.set(960, 700);
-moneyText.visible = true;
-app.stage.addChild(moneyText);
 
 let hasBet = false;
 // Current bet needs to be stored from turn to turn so that player can be paid out and so that double downs and splits can be processed correctly
