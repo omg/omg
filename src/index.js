@@ -149,22 +149,30 @@ createShoe(6);
 
 let players = [];
 
+// Boolean to check if player has already bet on their turn or not
+let hasBet = false;
+
+// Grabbing input field
+let moneyInput = document.getElementById("money_input");
+
 class Player {
   constructor(username) {
     this.username = username;
     this.hand = [];
     this.money = 5000; 
 
-
-    // Txt variable that displays money on screen
-    this.moneyText = new Text(this.money, { fontFamily: TEXT_FONT, fontSize: 48, fill: 0xffffff });
-    this.moneyText.position.set(960,700);
-    this.moneyText.visible = true;
-    app.stage.addChild(this.moneyText);
-
+    // Current bet needs to be stored from turn to turn so that player can be paid out and so that double downs and splits can be processed correctly
+    this.bet;
+    
     this.handContainer = new Container();
     this.handContainer.sortableChildren = true; // Apparently, this is not performant (see pixijs/layers instead)
     app.stage.addChild(this.handContainer);
+
+    // Txt variable that displays money on screen
+    this.moneyText = new Text("$" + this.money, { fontFamily: TEXT_FONT, fontSize: 48, fill: 0xffffff });
+    this.moneyText.position.set(0, 520);
+    this.moneyText.visible = true;
+    this.handContainer.addChild(this.moneyText);
 
     players.push(this);
   }
@@ -191,10 +199,29 @@ class Player {
   addCards(amount) {
     for (let i = 0; i < amount; i++) this.addCard();
   }
+
+  // Making this a separate function for now because there will be more to this later on
+  betMoney() {
+    if (moneyInput.value <= this.money) {
+      moneyInput.className = "modal hidden";
+      this.bet = moneyInput.value;
+      this.money = this.money - moneyInput.value;
+      this.moneyText.text = this.money;
+    }
+  }
 }
 
 let dealer = new Player("Dealer");
 let player = new Player("Lame Guest");
+
+dealer.moneyText.visible = false;
+
+moneyInput.addEventListener("keypress", function(event) {
+  if (event.key === "Enter" && !hasBet) {
+    hasBet = true;
+    player.betMoney();
+  }
+});
 
 dealer.addCards(2);
 player.addCards(2);
@@ -355,34 +382,10 @@ async function stand() {
 hitButton.on("pointerup", hit);
 standButton.on("pointerup", stand);
 
-let hasBet = false;
-// Current bet needs to be stored from turn to turn so that player can be paid out and so that double downs and splits can be processed correctly
-let currentBet;
+// Getting hand total for when the program loads up
+getHandTotal('player');
+getHandTotal('dealer');
 
 function startHand() {
   //TO DO WRITE TURN LOGIC HERE AND LET THE USER PLAY THE FUCKING GAME
 }
-
-// Grabbing input field
-let moneyInput = document.getElementById("money_input");
-
-// Making this a separate function for now because there will be more to this later on
-function betMoney() {
-  if (!hasBet && moneyInput.value <= player.money) {
-    hasBet = true;
-    moneyInput.className = "modal hidden";
-    currentBet = moneyInput.value;
-    player.money = player.money - document.getElementById("money_input").value;
-    moneyText.text = player.money;
-  }
-}
-
-moneyInput.addEventListener("keypress", function(event) {
-  if (event.key === "Enter") {
-    betMoney();
-  }
-});
-
-// Getting hand total for when the program loads up
-getHandTotal('player');
-getHandTotal('dealer');
