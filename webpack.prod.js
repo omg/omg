@@ -10,15 +10,16 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 // TODO just have the development config extend off of this one if possible
 
 module.exports = {
-  entry: 'src/client/index.js',
+  entry: './src/client/index.js',
   output: {
     filename: 'omg.js',
     path: path.resolve(__dirname, 'public/dist'),
+    publicPath: 'dist'
   },
   mode: "production",
   plugins: [
     new HtmlWebpackPlugin({
-      template: 'src/index.html'
+      template: './src/client/index.html'
     })
   ],
   module: {
