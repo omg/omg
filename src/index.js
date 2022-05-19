@@ -273,8 +273,6 @@ dealer.handContainer.position.set(1320, 100);
 //-----------------------------------------------------------
 // Game logic
 
-// TODO make this part of the container
-
 // Face down card sprite for initial dealer hand (player should only be able to see one upcard from the dealer)
 let faceDownCardSprite = Sprite.from('./assets/cards/card-back.png');
 faceDownCardSprite.width = CARD_DIMENSIONS.width;
@@ -294,6 +292,26 @@ let isPlayersTurn = true;
 
 // Replacing one starter card sprite with card back sprite
 dealer.hand[1].sprite.visible = false;
+
+
+// Function that hides all containers from view (meant to be used to hide things before player has bet)
+function hideContainers(player) {
+  actionContainer.visible = false;
+  dealer.handContainer.visible = false;
+  // Everything except for moneyText should be hidden from view before the player has bet
+  player.handContainer.children[1].visible = false;
+  player.handContainer.children[2].visible = false;
+  player.handContainer.children[3].visible = false;
+}
+
+// Function that shows all containers (meant to be used to show things to player after they have bet)
+function showContainers(player) {
+  actionContainer.visible = true;
+  player.handContainer.children[1].visible = true;
+  player.handContainer.children[2].visible = true;
+  player.handContainer.children[3].visible = true;
+  dealer.handContainer.visible = true;
+}
 
 async function dealerTurn() {
   dealer.addCard();
@@ -335,9 +353,6 @@ async function checkForBlackJack(player) {
 hitButton.on("pointerup", hit);
 standButton.on("pointerup", stand);
 
-//TEST DELETE LATER
-player.handTotalText.text = BLACKJACK_DISPLAY_TEXT;
-
 function startHand() {
   //TO DO WRITE TURN LOGIC HERE AND LET THE USER PLAY THE FUCKING GAME
   checkForBlackJack(player);
@@ -346,7 +361,17 @@ function startHand() {
 moneyInput.addEventListener("keypress", function(event) {
   if (event.key === "Enter" && !hasBet) {
     hasBet = true;
+    showContainers(player);
     player.betMoney();
     startHand();
   }
 });
+
+// Starting off with containers hidden
+hideContainers(player);
+
+//TODO
+//MAKE CONTAINERS NON VISIBLE UNTIL START HAND
+//MAKE THEM VISIBLE IN START HAND
+//HANDLE PAYOUTS IN dealerTurn()
+//HIDE EVERYTHING AGAIN AND BRING BACK THE BET BUTTON
