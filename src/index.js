@@ -218,15 +218,13 @@ class Player {
     // Reset hand totals
     this.handTotal = 0;
     this.secondaryHandTotal = 0;
-    let numberOfAces = 0;
+    let hasAce = false;
     for (const card of this.hand) {
-      if (CARD_FACES[card.face].value == 1) {
-        numberOfAces++;
-      }
+      if (CARD_FACES[card.face].value == 1) hasAce = true;
       this.handTotal += CARD_FACES[card.face].value;
      }
 
-    this.secondaryHandTotal = this.handTotal + 10 * numberOfAces;
+    this.secondaryHandTotal = hasAce == true ? this.handTotal + 10 : this.handTotal;
 
      if (this.secondaryHandTotal == 21 && this.hand.length == 2) {
       this.handTotalText.text = BLACKJACK_DISPLAY_TEXT;
@@ -240,15 +238,15 @@ class Player {
        this.handTotalText.text = "21";
      }
 
-     else if (numberOfAces == 0) {
+     else if (!hasAce) {
       this.handTotalText.text = this.handTotal;
      }
 
-     else if (numberOfAces != 0 && this.secondaryHandTotal > 21) {
+     else if (hasAce && this.secondaryHandTotal > 21) {
       this.handTotalText.text = this.handTotal;
     }
 
-    else if (numberOfAces != 0) {
+    else if (hasAce) {
        this.handTotalText.text = this.handTotal + "/" + this.secondaryHandTotal;
      }
    }
@@ -430,7 +428,7 @@ function betUpdated() {
 
 function bet() {
   let bet = parseInt(moneyInput.value) || 0;
-  if (bet > player.money || hasBet) return;
+  if (bet <= 0 || bet > player.money || hasBet) return;
 
   hasBet = true;
   player.betMoney(bet);
