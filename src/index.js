@@ -258,9 +258,6 @@ class Player {
 let dealer = new Player("Dealer");
 let player = new Player("Lame Guest");
 
-dealer.addCards(2);
-player.addCards(2);
-
 // Temporarily just move the hand containers
 player.handContainer.position.set(200, 100);
 dealer.handContainer.position.set(1320, 100);
@@ -291,31 +288,54 @@ dealer.moneyText.visible = false;
 // Boolean to check if it is players turn (you are not allowed to press buttons if it is not your turn!)
 let isPlayersTurn = true;
 
-// Replacing one starter card sprite with card back sprite
-dealer.hand[1].sprite.visible = false;
-
 // Function that hides all containers from view (meant to be used to hide things before player has bet)
 function hideContainers(player) {
   actionContainer.visible = false;
   dealer.handContainer.visible = false;
   // Everything except for moneyText should be hidden from view before the player has bet
-  player.handContainer.children[1].visible = false;
-  player.handContainer.children[2].visible = false;
-  player.handContainer.children[3].visible = false;
+  // This needs to be a for loop to account for new cards that the player has added to the hand container via hitting/double downing
+  // The for loop must start at 1, the first element of handContainer.children is moneyText, which should always be on screen 
+  for (let i = 1; i < player.handContainer.children.length; i++) {
+    player.handContainer.children[i].visible = false;
+  }
 }
 
 // Function that shows all containers (meant to be used to show things to player after they have bet)
 function showContainers(player) {
   actionContainer.visible = true;
-  player.handContainer.children[1].visible = true;
-  player.handContainer.children[2].visible = true;
-  player.handContainer.children[3].visible = true;
   dealer.handContainer.visible = true;
+  for (let i = 1; i < player.handContainer.children.length; i++) {
+    player.handContainer.children[i].visible = true;
+  }
+  dealer.handTotalText.visible = false;
 }
 
 // Function to reset the GUI to its original position after a hand has been played
-function resetGame() {
-  
+async function resetGame(player) {
+  await sleep(1000);
+  // Resetting flag booleans
+  hasStood = false;
+  hasBet = false;
+  isPlayersTurn = true;
+  hideContainers(player);
+  // Making the betting box visible again
+  moneyInput.className = "modal";
+  moneyInput.focus();
+  moneyInput.select();
+
+  // Deleting all added cards from the player's hand container
+  for (const card of player.hand) {
+    player.handContainer.removeChild(card.sprite);
+  }
+
+  // Deleting all added cards from the dealer's hand container
+  for (const card of dealer.hand) {
+    dealer.handContainer.removeChild(card.sprite);
+  }
+
+  // Deleting cards from player and dealer's hands
+  player.hand = [];
+  dealer.hand = [];
 }
 
 // Function to pay out player depending on if they won, lost, tied, or got a Blackjack
@@ -331,12 +351,35 @@ async function dealerTurn() {
     await sleep(1000);
     dealerTurn();
   }
+
+  else if (dealer.handTotal > 21) {
+    //TODO PAY PLAYER HERE
+    resetGame(player);
+  }
+
+  else if (dealer.handTotal == 21 || dealer.secondaryHandTotal == 21) {
+    resetGame(player);
+  }
+
+  else if (dealer.handTotal >= 17 && dealer.handTotal <= 20) {
+    //CHECK WHO HAS HIGHER TOTAL THEN MAYBE PAY
+    resetGame(player);
+  }
 }
 
-function hit() {
+async function hit() {
   // Making sure that you don't have a blackjack or are over 21
   if (player.handTotal < 21 && (player.handTotalText.text != BLACKJACK_DISPLAY_TEXT) && isPlayersTurn) {
     player.addCard();
+    // Resets game upon player busting
+    if (player.handTotal > 21) {
+      resetGame(player);
+    }
+
+    else if (player.handTotal == 21 || player.secondaryHandTotal == 21) {
+      await sleep(1000);
+      stand();
+    }
   }
 }
 
@@ -353,6 +396,10 @@ async function stand() {
       await sleep(1000);
       dealerTurn();
     }
+
+    else {
+      resetGame(player);
+    }
   }
 }
 
@@ -367,22 +414,34 @@ async function checkForBlackJack(player) {
 hitButton.on("pointerup", hit);
 standButton.on("pointerup", stand);
 
-function startHand() {
+function startHand(player) {
+  //giving the player and dealer brand new cards
+  player.addCards(2);
+  dealer.addCards(2);
+
+  // Replacing one starter card sprite with card back sprite
+  console.log(dealer.handContainer.children);
+  dealer.hand[1].sprite.visible = false;
+  faceDownCardSprite.visible = true;
+
   checkForBlackJack(player);
   showContainers(player);
 }
 
 moneyInput.addEventListener("keypress", function(event) {
-  if (event.key === "Enter" && moneyInput.value <= player.money && hasBet == false) {
+  moneyInput.value = moneyInput.value.replace(/-\./g, '');
+  if (event.key === "Enter" && moneyInput.value <= player.money && moneyInput.value > 0 && hasBet == false) {
     hasBet = true;
     player.betMoney();
-    startHand();
+    startHand(player);
   }
 });
 
 // Starting off with containers hidden
 hideContainers(player);
+console.log(dealer.handContainer.children);
+
 
 //TODO
-//HANDLE PAYOUTS IN dealerTurn()
-//HIDE EVERYTHING AGAIN AND BRING BACK THE BET BUTTON
+//HANDLE PAYOUTS IN dealerTurn() (payPlayer())
+//HIDE EVERYTHING AGAIN AND BRING BACK THE BET BUTTON (resetGame())
