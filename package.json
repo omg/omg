@@ -6,12 +6,9 @@
   "scripts": {
     "watch:build": "webpack --watch --env dev",
     "watch:server": "nodemon src/server/server.js",
-
     "build:release": "webpack --optimize-minimize",
-    
     "prestart:dev": "npm run prestart",
     "start:dev": "npm-run-all --parallel watch:build watch:server",
-
     "prestart": "npm i",
     "start": "webpack && node src/server/server.js"
   },
@@ -32,7 +29,8 @@
     "webpack": "^5.72.1",
     "webpack-cli": "^4.9.2",
     "webpack-dev-server": "^4.9.0",
-    "webpack-livereload-plugin": "^3.0.2"
+    "webpack-livereload-plugin": "^3.0.2",
+    "webpack-merge": "^5.8.0"
   },
   "dependencies": {
     "pixi.js": "^6.3.2"
