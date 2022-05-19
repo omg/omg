@@ -315,8 +315,9 @@ function showContainers(player) {
 
 async function dealerTurn() {
   dealer.addCard();
-  getHandTotal('dealer');
-  if (dealerHandTotal < 17 && dealerSecondaryHandTotal != 21) {
+  dealer.getHandTotal();
+  console.log(dealer.handTotal);
+  if (dealer.handTotal < 17 && dealer.secondaryHandTotal != 21) {
     await sleep(1000);
     dealerTurn();
   }
@@ -371,7 +372,5 @@ moneyInput.addEventListener("keypress", function(event) {
 hideContainers(player);
 
 //TODO
-//MAKE CONTAINERS NON VISIBLE UNTIL START HAND
-//MAKE THEM VISIBLE IN START HAND
 //HANDLE PAYOUTS IN dealerTurn()
 //HIDE EVERYTHING AGAIN AND BRING BACK THE BET BUTTON
