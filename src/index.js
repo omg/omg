@@ -208,12 +208,10 @@ class Player {
 
   // Making this a separate function for now because there will be more to this later on
   betMoney() {
-    if (moneyInput.value <= this.money) {
-      moneyInput.className = "modal hidden";
-      this.bet = moneyInput.value;
-      this.money = this.money - moneyInput.value;
-      this.moneyText.text = "$" + this.money;
-    }
+    this.bet = moneyInput.value;
+    moneyInput.className = "modal hidden";
+    this.money = this.money - moneyInput.value;
+    this.moneyText.text = "$" + this.money;
   }
 
   // Function to get hand total and update handTotalText
@@ -356,9 +354,14 @@ function startHand() {
   showContainers(player);
 }
 
+// Boolean to check if player has already bet on their turn
+let hasBet = false;
+
 moneyInput.addEventListener("keypress", function(event) {
-  if (event.key === "Enter") {
+  if (event.key === "Enter" && moneyInput.value <= player.money && hasBet == false) {
+    hasBet = true;
     player.betMoney();
+    console.log(moneyInput.value);
     console.log(player.bet);
     startHand();
   }
