@@ -1,12 +1,12 @@
 import { Application, Sprite, Graphics, Text, Container } from 'pixi.js';
-import scss from './style.scss';
+import scss from './sass/style.scss';
 
 //-----------------------------------------------------------
 // Application
 
 const app = new Application({
 	autoResize: true,
-  resolution: devicePixelRatio 
+  resolution: devicePixelRatio
 });
 document.body.appendChild(app.view);
 
