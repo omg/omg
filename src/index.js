@@ -149,9 +149,6 @@ createShoe(6);
 
 let players = [];
 
-// Boolean to check if player has already bet on their turn or not
-let hasBet = false;
-
 // Grabbing input field
 let moneyInput = document.getElementById("money_input");
 
@@ -355,15 +352,14 @@ hitButton.on("pointerup", hit);
 standButton.on("pointerup", stand);
 
 function startHand() {
-  //TO DO WRITE TURN LOGIC HERE AND LET THE USER PLAY THE FUCKING GAME
   checkForBlackJack(player);
+  showContainers(player);
 }
 
 moneyInput.addEventListener("keypress", function(event) {
-  if (event.key === "Enter" && !hasBet) {
-    hasBet = true;
-    showContainers(player);
+  if (event.key === "Enter") {
     player.betMoney();
+    console.log(player.bet);
     startHand();
   }
 });
