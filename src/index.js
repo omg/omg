@@ -207,10 +207,9 @@ class Player {
   }
 
   // Making this a separate function for now because there will be more to this later on
-  betMoney() {
-    this.bet = moneyInput.value;
-    moneyInput.className = "modal hidden";
-    this.money = this.money - moneyInput.value;
+  betMoney(amount) {
+    this.bet = amount;
+    this.money = this.money - amount;
     this.moneyText.text = "$" + this.money;
   }
 
@@ -428,13 +427,27 @@ function startHand(player) {
   showContainers(player);
 }
 
+function betUpdated() {
+  // Removes leading 0s and anything that's not a number
+  moneyInput.value = moneyInput.value.replace(/^0+|[^0-9]/g, "");
+}
+
+function bet() {
+  let bet = parseInt(moneyInput.value) || 0;
+  if (bet > player.money || hasBet) return;
+
+  hasBet = true;
+  player.betMoney(bet);
+  moneyInput.className = "modal hidden";
+  startHand(player);
+}
+
+// Listen for bet input update
+moneyInput.addEventListener("input", betUpdated);
+moneyInput.addEventListener("propertychange", betUpdated); // for IE8
+
 moneyInput.addEventListener("keypress", function(event) {
-  moneyInput.value = moneyInput.value.replace(/-\./g, '');
-  if (event.key === "Enter" && moneyInput.value <= player.money && moneyInput.value > 0 && hasBet == false) {
-    hasBet = true;
-    player.betMoney();
-    startHand(player);
-  }
+  if (event.key === "Enter") bet();
 });
 
 // Starting off with containers hidden
