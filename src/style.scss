@@ -6,6 +6,32 @@ body {
   overflow: hidden;
 }
 
+.modal {
+  position: fixed;
+  left: 50%;
+  bottom: 1em;
+  transform: translate(-50%, 0%);
+  max-width: calc(95vw - 2em);
+  max-height: calc(95vh - 2em);
+  text-align: center;
+  //padding: 1em;
+  width: fit-content;
+  block-size: fit-content;
+  transition: 0.3s opacity, 0.3s transform;
+}
+
+.modal::before {
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.3s opacity;
+}
+
+.modal.hidden {
+  opacity: 0;
+  transform: translate(-50%, 0%) scale(0.75);
+  pointer-events: none;
+}
+
 canvas {
   display: block;
 }

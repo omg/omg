@@ -22,7 +22,7 @@ function resize() {
 	app.renderer.resize(window.innerWidth, window.innerHeight);
 
   // Reposition the action container
-  actionContainer.position.set(window.innerWidth / 2, window.innerHeight - 20);
+  actionContainer.position.set(window.innerWidth / 2, window.innerHeight - 60);
 }
 window.addEventListener('resize', resize);
 resize();
@@ -149,15 +149,36 @@ createShoe(6);
 
 let players = [];
 
+// Grabbing input field
+let moneyInput = document.getElementById("money_input");
+
 class Player {
   constructor(username) {
     this.username = username;
     this.hand = [];
+    this.money = 5000; 
 
+    // Current bet needs to be stored from turn to turn so that player can be paid out and so that double downs and splits can be processed correctly
+    this.bet;
+    
     this.handContainer = new Container();
     this.handContainer.sortableChildren = true; // Apparently, this is not performant (see pixijs/layers instead)
     app.stage.addChild(this.handContainer);
 
+    // Txt variable that displays money on screen
+    this.moneyText = new Text("$" + this.money, { fontFamily: TEXT_FONT, fontSize: 48, fill: 0xffffff });
+    this.moneyText.position.set(0, 520);
+    this.handContainer.addChild(this.moneyText);
+
+    this.handTotal = 0;
+    // Secondary hand total is for when you have aces in hand (i.e hand could be 5 or 15)
+    this.secondaryHandTotal = 0;
+
+    this.handTotalText = new Text('0', { fontFamily: TEXT_FONT, fontSize: 48, fill: 0xffffff });
+    this.handTotalText.position.set(0, 450);
+    
+    this.handContainer.addChild(this.handTotalText);
+    
     players.push(this);
   }
 
@@ -178,18 +199,73 @@ class Player {
     card.sprite = cardSprite;
     
     this.hand.push(card);
+    this.getHandTotal();
   }
 
   addCards(amount) {
     for (let i = 0; i < amount; i++) this.addCard();
   }
+
+  // Making this a separate function for now because there will be more to this later on
+  betMoney(amount) {
+    this.bet = amount;
+    this.money = this.money - amount;
+    this.moneyText.text = "$" + this.money;
+  }
+
+  // Function to get hand total and update handTotalText
+  getHandTotal() {
+    // Reset hand totals
+    this.handTotal = 0;
+    this.secondaryHandTotal = 0;
+    let numberOfAces = 0;
+    for (const card of this.hand) {
+      if (CARD_FACES[card.face].value == 1) {
+        numberOfAces++;
+      }
+      this.handTotal += CARD_FACES[card.face].value;
+     }
+
+    this.secondaryHandTotal = this.handTotal + 10 * numberOfAces;
+
+     if (this.secondaryHandTotal == 21 && this.hand.length == 2) {
+      this.handTotalText.text = BLACKJACK_DISPLAY_TEXT;
+    }
+
+    else if (this.handTotal > 21) {
+       this.handTotalText.text = this.handTotal + " " + BUST_DISPLAY_TEXT; 
+     }
+
+     else if (this.handTotal == 21 || this.secondaryHandTotal == 21) {
+       this.handTotalText.text = "21";
+     }
+
+     else if (numberOfAces == 0) {
+      this.handTotalText.text = this.handTotal;
+     }
+
+     else if (numberOfAces != 0 && this.secondaryHandTotal > 21) {
+      this.handTotalText.text = this.handTotal;
+    }
+
+    else if (numberOfAces != 0) {
+       this.handTotalText.text = this.handTotal + "/" + this.secondaryHandTotal;
+     }
+   }
+
+   pay(amount) {
+     this.money += amount;
+     this.moneyText.text = "$" + this.money;
+   }
+
+   // Returns the higher of the player's hand totals that does not bust them
+   getSignificantTotal() {
+    return this.secondaryHandTotal > 21 ? this.handTotal : this.secondaryHandTotal;
+   }
 }
 
 let dealer = new Player("Dealer");
 let player = new Player("Lame Guest");
-
-dealer.addCards(2);
-player.addCards(2);
 
 // Temporarily just move the hand containers
 player.handContainer.position.set(200, 100);
@@ -198,7 +274,13 @@ dealer.handContainer.position.set(1320, 100);
 //-----------------------------------------------------------
 // Game logic
 
-// TODO make this part of the container
+// Boolean to check if player has already stood on their turn
+let hasStood = false;
+
+// Boolean to check if player has already bet on their turn
+let hasBet = false;
+
+// Face down card sprite for initial dealer hand (player should only be able to see one upcard from the dealer)
 let faceDownCardSprite = Sprite.from('./assets/cards/card-back.png');
 faceDownCardSprite.width = CARD_DIMENSIONS.width;
 faceDownCardSprite.height = CARD_DIMENSIONS.height;
@@ -206,138 +288,120 @@ faceDownCardSprite.position.set(30, 30);
 faceDownCardSprite.zIndex = 1;
 dealer.handContainer.addChild(faceDownCardSprite);
 
+// The dealer's hand total should not be visible before their first card is revealed
+dealer.handTotalText.visible = false;
+
+// The dealer is a special type of player, so they technically have a bet too, but it should never be shown
+dealer.moneyText.visible = false;
+
 // Boolean to check if it is players turn (you are not allowed to press buttons if it is not your turn!)
 let isPlayersTurn = true;
 
-// Replacing one starter card sprite with card back sprite
-dealer.hand[1].sprite.visible = false;
+// Function that hides all containers from view (meant to be used to hide things before player has bet)
+function hideContainers() {
+  actionContainer.visible = false;
+  dealer.handContainer.visible = false;
+  player.handTotalText.visible = false;
+}
 
-let playerHandTotal = 0;
-// Secondary hand total is for when you have aces in hand (i.e hand could be 5 or 15)
-let playerSecondaryHandTotal = 0;
-let dealerHandTotal = 0;
-let dealerSecondaryHandTotal = 0;
+// Function that shows all containers (meant to be used to show things to player after they have bet)
+function showContainers() {
+  actionContainer.visible = true;
+  dealer.handContainer.visible = true;
+  dealer.handTotalText.visible = false;
+  player.handTotalText.visible = true;
+}
 
-let playerHandTotalText = new Text('0', { fontFamily: TEXT_FONT, fontSize: 48, fill: 0xffffff });
+// Function to reset the GUI to its original position after a hand has been played
+async function resetGame() {
+  await sleep(1000);
+  // Resetting flag booleans
+  hasStood = false;
+  hasBet = false;
+  isPlayersTurn = true;
+  hideContainers();
+  // Making the betting box visible again
+  moneyInput.className = "modal";
+  moneyInput.focus();
+  moneyInput.select();
 
-playerHandTotalText.position.set(200, 500);
-
-let dealerHandTotalText = new Text('0', { fontFamily: TEXT_FONT, fontSize: 48, fill: 0xffffff });
-dealerHandTotalText.position.set(1320, 500);
-dealerHandTotalText.visible = false;
-
-app.stage.addChild(playerHandTotalText);
-app.stage.addChild(dealerHandTotalText);
-
-// Function to get hand total and update handTotalText
-function getHandTotal(totalRecipient) {
-
-  if (totalRecipient == 'player') {
-    // Reset hand totals
-    playerHandTotal = 0;
-    playerSecondaryHandTotal = 0;
-    let numberOfAces = 0;
-    for (const card of player.hand) {
-      if (CARD_FACES[card.face].value == 1) {
-        numberOfAces++;
-      }
-      playerHandTotal += CARD_FACES[card.face].value;
+  // Deleting all added cards from the player's hand containers
+  for (const currentPlayer of players) {
+    for (const card of currentPlayer.hand) {
+      currentPlayer.handContainer.removeChild(card.sprite);
     }
-
-    playerSecondaryHandTotal = playerHandTotal + 10 * numberOfAces;
-
-    if (playerSecondaryHandTotal == 21 && player.hand.length == 2) {
-      playerHandTotalText.text = BLACKJACK_DISPLAY_TEXT;
-    }
-
-    else if (playerHandTotal > 21) {
-      playerHandTotalText.text = playerHandTotal + " " + BUST_DISPLAY_TEXT; 
-    }
-
-    else if (playerHandTotal == 21 || playerSecondaryHandTotal == 21) {
-      playerHandTotalText.text = "21";
-    }
-
-    else if (numberOfAces == 0) {
-      playerHandTotalText.text = playerHandTotal;
-    }
-
-    else if (numberOfAces != 0 && playerSecondaryHandTotal > 21) {
-      playerHandTotalText.text = playerHandTotal;
-    }
-
-    else if (numberOfAces != 0) {
-      playerHandTotalText.text = playerHandTotal + "/" + playerSecondaryHandTotal;
-    }
-  }
-
-  else if (totalRecipient == 'dealer') {
-    // Reset hand totals
-    dealerHandTotal = 0;
-    dealerSecondaryHandTotal = 0;
-    let numberOfAces = 0;
-    for (const card of dealer.hand) {
-      if (CARD_FACES[card.face].value == 1) {
-        numberOfAces++;
-      }
-      dealerHandTotal += CARD_FACES[card.face].value;
-    }
-    
-    dealerSecondaryHandTotal = dealerHandTotal + 10 * numberOfAces;
-    
-    if (dealerSecondaryHandTotal == 21 && dealer.hand.length == 2) {
-      dealerHandTotalText.text = BLACKJACK_DISPLAY_TEXT;
-    }
-    
-    else if (dealerHandTotal > 21) {
-      dealerHandTotalText.text = dealerHandTotal + " " + BUST_DISPLAY_TEXT; 
-    }
-    
-    else if (dealerHandTotal == 21 || dealerSecondaryHandTotal == 21) {
-      dealerHandTotalText.text = "21";
-    }
-    
-    else if (numberOfAces == 0) {
-      dealerHandTotalText.text = dealerHandTotal;
-    }
-    
-    else if (numberOfAces != 0 && dealerSecondaryHandTotal > 21) {
-      dealerHandTotalText.text = dealerHandTotal;
-    }
-    
-    else if (numberOfAces != 0) {
-      dealerHandTotalText.text = dealerHandTotal + "/" + dealerSecondaryHandTotal;
-    }
+    currentPlayer.hand = [];
   }
 }
 
+// Function to pay out player depending on if they won, lost, tied, or got a Blackjack
+function payPlayer(player) {
+
+  console.log(player.getSignificantTotal(), dealer.getSignificantTotal());
+  // For Blackjacks
+  if (player.handTotalText.text != BLACKJACK_DISPLAY_TEXT && dealer.handTotalText.text == BLACKJACK_DISPLAY_TEXT) return;
+
+  if (player.handTotalText.text == BLACKJACK_DISPLAY_TEXT && dealer.handTotalText.text != BLACKJACK_DISPLAY_TEXT) {
+    player.pay(Math.ceil(2.5 * player.bet));
+  }
+
+  else if (player.getSignificantTotal() > dealer.getSignificantTotal() || dealer.getSignificantTotal() > 21) {
+    player.pay(2 * player.bet);
+  }
+  // For pushes
+  else if (player.getSignificantTotal() == dealer.getSignificantTotal()) {
+    player.pay(player.bet);
+  }
+}
+
+// Function to handle dealer drawing cards
 async function dealerTurn() {
-  dealer.addCard();
-  getHandTotal('dealer');
-  if (dealerHandTotal < 17 && dealerSecondaryHandTotal != 21) {
-    await sleep(1000);
+  dealer.getHandTotal();
+  await sleep(1000);
+  console.log(dealer.handTotal);
+  if (dealer.handTotal < 17 && dealer.secondaryHandTotal != 21) {
+    dealer.addCard();
     dealerTurn();
+    return;
   }
+  payPlayer(player);
+  await sleep(3000);
+  resetGame();
 }
 
-function hit() {
+async function hit() {
   // Making sure that you don't have a blackjack or are over 21
-  if (playerHandTotal < 21 && (playerHandTotalText.text != BLACKJACK_DISPLAY_TEXT) && isPlayersTurn) {
+  if (player.handTotal < 21 && (player.handTotalText.text != BLACKJACK_DISPLAY_TEXT) && isPlayersTurn) {
     player.addCard();
-    getHandTotal('player');
+    // Resets game upon player busting
+    if (player.handTotal > 21) {
+      await sleep(3000);
+      resetGame();
+    }
+
+    else if (player.handTotal == 21 || player.secondaryHandTotal == 21) {
+      stand();
+    }
   }
 }
 
-async function stand() {
-  isPlayersTurn = false;
-  
-  dealerHandTotalText.visible = true;
-  dealer.hand[1].sprite.visible = true;
-  faceDownCardSprite.visible = false;
-  
-  if (dealerHandTotal < 17 && dealerSecondaryHandTotal != 21) {
-    await sleep(1000);
+function stand() {
+  if (hasStood == false) {
+    hasStood = true;
+    isPlayersTurn = false;
+    
+    dealer.handTotalText.visible = true;
+    dealer.hand[1].sprite.visible = true;
+    faceDownCardSprite.visible = false;
+
     dealerTurn();
+  }
+}
+
+async function checkForBlackJack(player) {
+  if (player.handTotalText.text == BLACKJACK_DISPLAY_TEXT) {
+    await sleep(1000);
+    stand();
   }
 }
 
@@ -345,6 +409,48 @@ async function stand() {
 hitButton.on("pointerup", hit);
 standButton.on("pointerup", stand);
 
-// Getting hand total for when the program loads up
-getHandTotal('player');
-getHandTotal('dealer');
+function startHand() {
+  //giving the player and dealer brand new cards
+  player.addCards(2);
+  dealer.addCards(2);
+
+  // Replacing one starter card sprite with card back sprite
+  console.log(dealer.handContainer.children);
+  dealer.hand[1].sprite.visible = false;
+  faceDownCardSprite.visible = true;
+
+  showContainers();
+  checkForBlackJack(player);
+}
+
+function betUpdated() {
+  // Removes leading 0s and anything that's not a number
+  moneyInput.value = moneyInput.value.replace(/^0+|[^0-9]/g, "");
+}
+
+function bet() {
+  let bet = parseInt(moneyInput.value) || 0;
+  if (bet > player.money || hasBet) return;
+
+  hasBet = true;
+  player.betMoney(bet);
+  moneyInput.className = "modal hidden";
+  startHand();
+}
+
+// Listen for bet input update
+moneyInput.addEventListener("input", betUpdated);
+moneyInput.addEventListener("propertychange", betUpdated); // for IE8
+
+moneyInput.addEventListener("keypress", function(event) {
+  if (event.key === "Enter") bet();
+});
+
+// Starting off with containers hidden
+hideContainers();
+console.log(dealer.handContainer.children);
+
+
+//TODO
+//HANDLE PAYOUTS IN dealerTurn() (payPlayer())
+//HIDE EVERYTHING AGAIN AND BRING BACK THE BET BUTTON (resetGame())
