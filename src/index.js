@@ -448,9 +448,7 @@ moneyInput.addEventListener("keypress", function(event) {
 
 // Starting off with containers hidden
 hideContainers();
+moneyInput.focus();
+moneyInput.select();
+
 console.log(dealer.handContainer.children);
-
-
-//TODO
-//HANDLE PAYOUTS IN dealerTurn() (payPlayer())
-//HIDE EVERYTHING AGAIN AND BRING BACK THE BET BUTTON (resetGame())
