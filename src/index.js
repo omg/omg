@@ -252,6 +252,16 @@ class Player {
        this.handTotalText.text = this.handTotal + "/" + this.secondaryHandTotal;
      }
    }
+
+   pay(amount) {
+     this.money += amount;
+     this.moneyText.text = "$" + this.money;
+   }
+
+   // Returns the higher of the player's hand totals that does not bust them
+   getSignificantTotal() {
+    return this.secondaryHandTotal > 21 ? this.handTotal : this.secondaryHandTotal;
+   }
 }
 
 let dealer = new Player("Dealer");
@@ -288,82 +298,75 @@ dealer.moneyText.visible = false;
 let isPlayersTurn = true;
 
 // Function that hides all containers from view (meant to be used to hide things before player has bet)
-function hideContainers(player) {
+function hideContainers() {
   actionContainer.visible = false;
   dealer.handContainer.visible = false;
-  // Everything except for moneyText should be hidden from view before the player has bet
-  // This needs to be a for loop to account for new cards that the player has added to the hand container via hitting/double downing
-  // The for loop must start at 1, the first element of handContainer.children is moneyText, which should always be on screen 
-  for (let i = 1; i < player.handContainer.children.length; i++) {
-    player.handContainer.children[i].visible = false;
-  }
+  player.handTotalText.visible = false;
 }
 
 // Function that shows all containers (meant to be used to show things to player after they have bet)
-function showContainers(player) {
+function showContainers() {
   actionContainer.visible = true;
   dealer.handContainer.visible = true;
-  for (let i = 1; i < player.handContainer.children.length; i++) {
-    player.handContainer.children[i].visible = true;
-  }
   dealer.handTotalText.visible = false;
+  player.handTotalText.visible = true;
 }
 
 // Function to reset the GUI to its original position after a hand has been played
-async function resetGame(player) {
+async function resetGame() {
   await sleep(1000);
   // Resetting flag booleans
   hasStood = false;
   hasBet = false;
   isPlayersTurn = true;
-  hideContainers(player);
+  hideContainers();
   // Making the betting box visible again
   moneyInput.className = "modal";
   moneyInput.focus();
   moneyInput.select();
 
-  // Deleting all added cards from the player's hand container
-  for (const card of player.hand) {
-    player.handContainer.removeChild(card.sprite);
+  // Deleting all added cards from the player's hand containers
+  for (const currentPlayer of players) {
+    for (const card of currentPlayer.hand) {
+      currentPlayer.handContainer.removeChild(card.sprite);
+    }
+    currentPlayer.hand = [];
   }
-
-  // Deleting all added cards from the dealer's hand container
-  for (const card of dealer.hand) {
-    dealer.handContainer.removeChild(card.sprite);
-  }
-
-  // Deleting cards from player and dealer's hands
-  player.hand = [];
-  dealer.hand = [];
 }
 
 // Function to pay out player depending on if they won, lost, tied, or got a Blackjack
 function payPlayer(player) {
 
+  console.log(player.getSignificantTotal(), dealer.getSignificantTotal());
+  // For Blackjacks
+  if (player.handTotalText.text != BLACKJACK_DISPLAY_TEXT && dealer.handTotalText.text == BLACKJACK_DISPLAY_TEXT) return;
+
+  if (player.handTotalText.text == BLACKJACK_DISPLAY_TEXT && dealer.handTotalText.text != BLACKJACK_DISPLAY_TEXT) {
+    player.pay(Math.ceil(2.5 * player.bet));
+  }
+
+  else if (player.getSignificantTotal() > dealer.getSignificantTotal() || dealer.getSignificantTotal() > 21) {
+    player.pay(2 * player.bet);
+  }
+  // For pushes
+  else if (player.getSignificantTotal() == dealer.getSignificantTotal()) {
+    player.pay(player.bet);
+  }
 }
 
+// Function to handle dealer drawing cards
 async function dealerTurn() {
-  dealer.addCard();
   dealer.getHandTotal();
+  await sleep(1000);
   console.log(dealer.handTotal);
   if (dealer.handTotal < 17 && dealer.secondaryHandTotal != 21) {
-    await sleep(1000);
+    dealer.addCard();
     dealerTurn();
+    return;
   }
-
-  else if (dealer.handTotal > 21) {
-    //TODO PAY PLAYER HERE
-    resetGame(player);
-  }
-
-  else if (dealer.handTotal == 21 || dealer.secondaryHandTotal == 21) {
-    resetGame(player);
-  }
-
-  else if (dealer.handTotal >= 17 && dealer.handTotal <= 20) {
-    //CHECK WHO HAS HIGHER TOTAL THEN MAYBE PAY
-    resetGame(player);
-  }
+  payPlayer(player);
+  await sleep(3000);
+  resetGame();
 }
 
 async function hit() {
@@ -372,17 +375,17 @@ async function hit() {
     player.addCard();
     // Resets game upon player busting
     if (player.handTotal > 21) {
-      resetGame(player);
+      await sleep(3000);
+      resetGame();
     }
 
     else if (player.handTotal == 21 || player.secondaryHandTotal == 21) {
-      await sleep(1000);
       stand();
     }
   }
 }
 
-async function stand() {
+function stand() {
   if (hasStood == false) {
     hasStood = true;
     isPlayersTurn = false;
@@ -390,15 +393,8 @@ async function stand() {
     dealer.handTotalText.visible = true;
     dealer.hand[1].sprite.visible = true;
     faceDownCardSprite.visible = false;
-    
-    if (dealer.handTotal < 17 && dealer.secondaryHandTotal != 21) {
-      await sleep(1000);
-      dealerTurn();
-    }
 
-    else {
-      resetGame(player);
-    }
+    dealerTurn();
   }
 }
 
@@ -413,7 +409,7 @@ async function checkForBlackJack(player) {
 hitButton.on("pointerup", hit);
 standButton.on("pointerup", stand);
 
-function startHand(player) {
+function startHand() {
   //giving the player and dealer brand new cards
   player.addCards(2);
   dealer.addCards(2);
@@ -423,8 +419,8 @@ function startHand(player) {
   dealer.hand[1].sprite.visible = false;
   faceDownCardSprite.visible = true;
 
+  showContainers();
   checkForBlackJack(player);
-  showContainers(player);
 }
 
 function betUpdated() {
@@ -439,7 +435,7 @@ function bet() {
   hasBet = true;
   player.betMoney(bet);
   moneyInput.className = "modal hidden";
-  startHand(player);
+  startHand();
 }
 
 // Listen for bet input update
@@ -451,7 +447,7 @@ moneyInput.addEventListener("keypress", function(event) {
 });
 
 // Starting off with containers hidden
-hideContainers(player);
+hideContainers();
 console.log(dealer.handContainer.children);
 
 
