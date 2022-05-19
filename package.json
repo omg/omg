@@ -4,13 +4,12 @@
   "description": "",
   "private": true,
   "scripts": {
-    "watch:build": "webpack --watch --env dev",
+    "watch:build": "webpack --watch --config webpack.dev.js",
     "watch:server": "nodemon src/server/server.js",
-    "build:release": "webpack --optimize-minimize",
-    "prestart:dev": "npm run prestart",
-    "start:dev": "npm-run-all --parallel watch:build watch:server",
     "prestart": "npm i",
-    "start": "webpack && node src/server/server.js"
+    "start": "npm-run-all --parallel watch:build watch:server",
+    "preserver": "npm run prestart",
+    "server": "webpack --config webpack.prod.js && node src/server/server.js"
   },
   "keywords": [],
   "author": "",
