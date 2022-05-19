@@ -268,6 +268,12 @@ dealer.handContainer.position.set(1320, 100);
 //-----------------------------------------------------------
 // Game logic
 
+// Boolean to check if player has already stood on their turn
+let hasStood = false;
+
+// Boolean to check if player has already bet on their turn
+let hasBet = false;
+
 // Face down card sprite for initial dealer hand (player should only be able to see one upcard from the dealer)
 let faceDownCardSprite = Sprite.from('./assets/cards/card-back.png');
 faceDownCardSprite.width = CARD_DIMENSIONS.width;
@@ -288,7 +294,6 @@ let isPlayersTurn = true;
 // Replacing one starter card sprite with card back sprite
 dealer.hand[1].sprite.visible = false;
 
-
 // Function that hides all containers from view (meant to be used to hide things before player has bet)
 function hideContainers(player) {
   actionContainer.visible = false;
@@ -306,6 +311,16 @@ function showContainers(player) {
   player.handContainer.children[2].visible = true;
   player.handContainer.children[3].visible = true;
   dealer.handContainer.visible = true;
+}
+
+// Function to reset the GUI to its original position after a hand has been played
+function resetGame() {
+  
+}
+
+// Function to pay out player depending on if they won, lost, tied, or got a Blackjack
+function payPlayer(player) {
+
 }
 
 async function dealerTurn() {
@@ -326,15 +341,18 @@ function hit() {
 }
 
 async function stand() {
-  isPlayersTurn = false;
-  
-  dealer.handTotalText.visible = true;
-  dealer.hand[1].sprite.visible = true;
-  faceDownCardSprite.visible = false;
-  
-  if (dealer.handTotal < 17 && dealer.secondaryHandTotal != 21) {
-    await sleep(1000);
-    dealerTurn();
+  if (hasStood == false) {
+    hasStood = true;
+    isPlayersTurn = false;
+    
+    dealer.handTotalText.visible = true;
+    dealer.hand[1].sprite.visible = true;
+    faceDownCardSprite.visible = false;
+    
+    if (dealer.handTotal < 17 && dealer.secondaryHandTotal != 21) {
+      await sleep(1000);
+      dealerTurn();
+    }
   }
 }
 
@@ -354,15 +372,10 @@ function startHand() {
   showContainers(player);
 }
 
-// Boolean to check if player has already bet on their turn
-let hasBet = false;
-
 moneyInput.addEventListener("keypress", function(event) {
   if (event.key === "Enter" && moneyInput.value <= player.money && hasBet == false) {
     hasBet = true;
     player.betMoney();
-    console.log(moneyInput.value);
-    console.log(player.bet);
     startHand();
   }
 });
