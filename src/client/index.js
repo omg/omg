@@ -389,13 +389,18 @@ function hit() {
 
 // Doubling down doubles your bet, hits once, then stands
 function doubleDown() {
-  //repeating original bet
-  if (isPlayersTurn && !hasHit && player.money > player.bet) {
+  // Repeating original bet
+  if (isPlayersTurn && !hasHit && player.money >= player.bet) {
     player.pay(-player.bet);
     player.bet *= 2;
     console.log(player.bet);
     player.addCard();
-    player.handTotal > 21 ? resetGame() : stand();
+    if (player.handTotal > 21) {
+      resetGame()
+    } 
+    else { 
+      stand();
+    }
   }
 }
 
