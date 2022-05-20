@@ -366,17 +366,15 @@ async function dealerTurn() {
     return;
   }
   payPlayer(player);
-  await sleep(3000);
   resetGame();
 }
 
-async function hit() {
+function hit() {
   // Making sure that you don't have a blackjack or are over 21
   if (player.handTotal < 21 && (player.handTotalText.text != BLACKJACK_DISPLAY_TEXT) && isPlayersTurn) {
     player.addCard();
     // Resets game upon player busting
     if (player.handTotal > 21) {
-      await sleep(3000);
       resetGame();
     }
 
