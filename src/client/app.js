@@ -124,6 +124,7 @@ function createActionButton(width, text) {
 
 let hitButton = createActionButton(100, 'HIT');
 let standButton = createActionButton(156, 'STAND');
+let doubleDownButton = createActionButton(330, 'DOUBLE DOWN');
 actionContainerResized();
 
 //-----------------------------------------------------------
@@ -272,6 +273,9 @@ dealer.handContainer.position.set(1320, 100);
 //-----------------------------------------------------------
 // Game logic
 
+// Boolean to check if player has already hit (to check if they can double down)
+let hasHit = false;
+
 // Boolean to check if player has already stood on their turn
 let hasStood = false;
 
@@ -312,8 +316,9 @@ function showContainers() {
 
 // Function to reset the GUI to its original position after a hand has been played
 async function resetGame() {
-  await sleep(1000);
+  await sleep(2000);
   // Resetting flag booleans
+  hasHit = false;
   hasStood = false;
   hasBet = false;
   isPlayersTurn = true;
@@ -363,21 +368,37 @@ async function dealerTurn() {
     return;
   }
   payPlayer(player);
-  await sleep(3000);
   resetGame();
 }
 
-async function hit() {
+function hit() {
   // Making sure that you don't have a blackjack or are over 21
   if (player.handTotal < 21 && (player.handTotalText.text != BLACKJACK_DISPLAY_TEXT) && isPlayersTurn) {
+    hasHit = true;
     player.addCard();
     // Resets game upon player busting
     if (player.handTotal > 21) {
-      await sleep(3000);
       resetGame();
     }
 
     else if (player.handTotal == 21 || player.secondaryHandTotal == 21) {
+      stand();
+    }
+  }
+}
+
+// Doubling down doubles your bet, hits once, then stands
+function doubleDown() {
+  // Repeating original bet
+  if (isPlayersTurn && !hasHit && player.money >= player.bet) {
+    player.pay(-player.bet);
+    player.bet *= 2;
+    console.log(player.bet);
+    player.addCard();
+    if (player.handTotal > 21) {
+      resetGame()
+    } 
+    else { 
       stand();
     }
   }
@@ -406,6 +427,7 @@ async function checkForBlackJack(player) {
 // Adding button listeners HERE
 hitButton.on("pointerup", hit);
 standButton.on("pointerup", stand);
+doubleDownButton.on("pointerup", doubleDown);
 
 function startHand() {
   //giving the player and dealer brand new cards
@@ -446,9 +468,7 @@ moneyInput.addEventListener("keypress", function(event) {
 
 // Starting off with containers hidden
 hideContainers();
+moneyInput.focus();
+moneyInput.select();
+
 console.log(dealer.handContainer.children);
-
-
-//TODO
-//HANDLE PAYOUTS IN dealerTurn() (payPlayer())
-//HIDE EVERYTHING AGAIN AND BRING BACK THE BET BUTTON (resetGame())
