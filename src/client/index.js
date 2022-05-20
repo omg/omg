@@ -316,7 +316,7 @@ function showContainers() {
 
 // Function to reset the GUI to its original position after a hand has been played
 async function resetGame() {
-  await sleep(3000);
+  await sleep(2000);
   // Resetting flag booleans
   hasHit = false;
   hasStood = false;
