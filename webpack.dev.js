@@ -6,6 +6,7 @@ const OpenBrowserPlugin = require("open-browser-plugin");
 
 module.exports = merge(common, {
   mode: "development",
+  devtool: 'inline-source-map',
   plugins: [
     new LiveReloadPlugin({
         port: 9000,
