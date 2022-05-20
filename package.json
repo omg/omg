@@ -5,11 +5,11 @@
   "private": true,
   "scripts": {
     "watch:build": "webpack --watch --config webpack.dev.js",
-    "watch:server": "nodemon --watch src/server --watch src/shared src/server/server.ts",
+    "watch:server": "nodemon --watch src/server --watch src/shared src/server/index.ts",
     "prestart": "npm i",
     "start": "npm-run-all --parallel watch:build watch:server",
     "preserver": "npm run prestart",
-    "server": "tsc && webpack --config webpack.prod.js && node dist/server/server.js"
+    "server": "tsc && webpack --config webpack.prod.js && node dist/server/index.js"
   },
   "keywords": [],
   "author": "",
