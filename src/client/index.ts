@@ -1,4 +1,5 @@
 import './index.js';
 
-let text: string = "AMONG us";
+let text: string = Math.random().toString();
+
 console.log(text);
