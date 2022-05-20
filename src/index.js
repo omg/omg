@@ -275,6 +275,9 @@ dealer.handContainer.position.set(1320, 100);
 //-----------------------------------------------------------
 // Game logic
 
+// Boolean to check if player has already hit (to check if they can double down)
+let hasHit = false;
+
 // Boolean to check if player has already stood on their turn
 let hasStood = false;
 
@@ -317,6 +320,7 @@ function showContainers() {
 async function resetGame() {
   await sleep(3000);
   // Resetting flag booleans
+  hasHit = false;
   hasStood = false;
   hasBet = false;
   isPlayersTurn = true;
@@ -372,6 +376,7 @@ async function dealerTurn() {
 function hit() {
   // Making sure that you don't have a blackjack or are over 21
   if (player.handTotal < 21 && (player.handTotalText.text != BLACKJACK_DISPLAY_TEXT) && isPlayersTurn) {
+    hasHit = true;
     player.addCard();
     // Resets game upon player busting
     if (player.handTotal > 21) {
@@ -387,7 +392,7 @@ function hit() {
 // Doubling down doubles your bet, hits once, then stands
 function doubleDown() {
   //repeating original bet
-  if (isPlayersTurn) {
+  if (isPlayersTurn && !hasHit) {
     player.pay(-player.bet);
     player.bet *= 2;
     console.log(player.bet);
