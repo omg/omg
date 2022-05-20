@@ -124,6 +124,7 @@ function createActionButton(width, text) {
 
 let hitButton = createActionButton(100, 'HIT');
 let standButton = createActionButton(156, 'STAND');
+let doubleDownButton = createActionButton(330, 'DOUBLE DOWN');
 actionContainerResized();
 
 //-----------------------------------------------------------
@@ -314,7 +315,7 @@ function showContainers() {
 
 // Function to reset the GUI to its original position after a hand has been played
 async function resetGame() {
-  await sleep(1000);
+  await sleep(3000);
   // Resetting flag booleans
   hasStood = false;
   hasBet = false;
@@ -385,6 +386,18 @@ async function hit() {
   }
 }
 
+// Doubling down doubles your bet, hits once, then stands
+function doubleDown() {
+  //repeating original bet
+  if (isPlayersTurn) {
+    player.pay(-player.bet);
+    player.bet *= 2;
+    console.log(player.bet);
+    player.addCard();
+    player.handTotal > 21 ? resetGame() : stand();
+  }
+}
+
 function stand() {
   if (hasStood == false) {
     hasStood = true;
@@ -408,6 +421,7 @@ async function checkForBlackJack(player) {
 // Adding button listeners HERE
 hitButton.on("pointerup", hit);
 standButton.on("pointerup", stand);
+doubleDownButton.on("pointerup", doubleDown);
 
 function startHand() {
   //giving the player and dealer brand new cards
