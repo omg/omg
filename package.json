@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "watch:build": "webpack --watch --config webpack.dev.js",
-    "watch:server": "nodemon src/server/server.js",
+    "watch:server": "nodemon --watch src/server --watch src/shared src/server/server.js",
     "prestart": "npm i",
     "start": "npm-run-all --parallel watch:build watch:server",
     "preserver": "npm run prestart",
