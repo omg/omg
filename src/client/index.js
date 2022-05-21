@@ -355,7 +355,6 @@ function payPlayer(player) {
 
 // Function to handle dealer drawing cards
 async function dealerTurn() {
-  dealer.getHandTotal();
   await sleep(1000);
 
   if (dealer.handTotal < 17 && dealer.secondaryHandTotal != 21) {
