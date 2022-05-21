@@ -380,7 +380,7 @@ function hit() {
     stand();
   }
 }
-hitButton.on("pointerup", hit);
+hitButton.on("click", hit);
 
 function stand() {
   if (hasStood) return;
@@ -394,7 +394,7 @@ function stand() {
 
   dealerTurn();
 }
-standButton.on("pointerup", stand);
+standButton.on("click", stand);
 
 // Doubling down doubles your bet, hits once, then stands
 function doubleDown() {
@@ -412,7 +412,7 @@ function doubleDown() {
     stand();
   }
 }
-doubleDownButton.on("pointerup", doubleDown);
+doubleDownButton.on("click", doubleDown);
 
 async function checkForBlackjack(player) {
   if (player.handTotalText.text == BLACKJACK_DISPLAY_TEXT) {
