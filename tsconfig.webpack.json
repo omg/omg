@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "baseUrl": ".",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "lib": ["dom", "es2020"],
+    "module": "commonjs",
+    "noEmitOnError": false,
+    "skipLibCheck": true,
+    "moduleResolution": "node",
+    "alwaysStrict": true,
+    "noUnusedLocals": true,
+    "noImplicitAny": true,
+    "sourceMap": true,
+    "target": "es5"
+  },
+  "paths": {
+    "client/*": ["src/client/*"],
+    "shared/*": ["src/shared/*"]
+  },
+  "include": ["src/client/**/*", "src/shared/**/*"]
+}

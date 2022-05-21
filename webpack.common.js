@@ -10,7 +10,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 // old npm script "build:release": "webpack --optimize-minimize --config webpack.prod.js",
 
 module.exports = {
-  entry: './src/client/index.js',
+  entry: './src/client/index.ts',
   output: {
     filename: 'omg.js',
     path: path.resolve(__dirname, 'public/dist'),
@@ -24,9 +24,22 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.tsx?$/,
+        use: [{
+          loader: 'ts-loader',
+          options: {
+            configFile: "tsconfig.webpack.json"
+          }
+        }],
+        exclude: /node_modules/,
+      },
+      {
         test: /\.s?css$/i,
         use: ['style-loader', 'css-loader', 'sass-loader'],
       }
     ],
+  },
+  resolve: {
+    extensions: ['.tsx', '.ts', '.js'],
   },
 };
