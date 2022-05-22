@@ -260,6 +260,12 @@ class Player {
    getSignificantTotal() {
     return this.secondaryHandTotal > 21 ? this.handTotal : this.secondaryHandTotal;
    }
+
+   // Checks if player has a Blackjack
+   hasBlackjack() {
+     if (this.getSignificantTotal() == 21 && this.hand.length == 2) return true;
+     return false;
+   }
 }
 
 let dealer = new Player("Dealer");
@@ -336,7 +342,7 @@ async function resetGame(fromStart = false) {
 // Function to pay out player depending on if they won, lost, tied, or got a Blackjack
 function payPlayer(player) {
   // Do not continue if the dealer has a blackjack and the player doesn't
-  if (player.handTotalText.text != BLACKJACK_DISPLAY_TEXT && dealer.handTotalText.text == BLACKJACK_DISPLAY_TEXT) return;
+  if (!player.hasBlackjack() && dealer.hasBlackjack()) return;
 
   // Pay out a blackjack if the dealer doesn't have a blackjack
   if (player.handTotalText.text == BLACKJACK_DISPLAY_TEXT && dealer.handTotalText.text != BLACKJACK_DISPLAY_TEXT) {
