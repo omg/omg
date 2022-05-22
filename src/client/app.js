@@ -328,6 +328,9 @@ async function resetGame(fromStart = false) {
     }
     currentPlayer.hand = [];
   }
+
+  // Create new shoe if it is almost empty
+  if (shoe.length <= 78) createShoe(6);
 }
 
 // Function to pay out player depending on if they won, lost, tied, or got a Blackjack
