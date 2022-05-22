@@ -1,4 +1,6 @@
 import { Application, Sprite, Graphics, Text, Container } from 'pixi.js';
+
+// By including this line, webpack adds the CSS style to our HTML page
 import scss from './sass/style.scss';
 
 //-----------------------------------------------------------
@@ -166,7 +168,7 @@ class Player {
     this.handContainer.sortableChildren = true; // Apparently, this is not performant (see pixijs/layers instead)
     app.stage.addChild(this.handContainer);
 
-    // Txt variable that displays money on screen
+    // Text variable that displays money on screen
     this.moneyText = new Text("$" + this.money, { fontFamily: TEXT_FONT, fontSize: 48, fill: 0xffffff });
     this.moneyText.position.set(0, 520);
     this.handContainer.addChild(this.moneyText);
@@ -219,38 +221,35 @@ class Player {
     // Reset hand totals
     this.handTotal = 0;
     this.secondaryHandTotal = 0;
+
     let hasAce = false;
     for (const card of this.hand) {
       if (CARD_FACES[card.face].value == 1) hasAce = true;
       this.handTotal += CARD_FACES[card.face].value;
-     }
+    }
 
     this.secondaryHandTotal = hasAce == true ? this.handTotal + 10 : this.handTotal;
 
-     if (this.secondaryHandTotal == 21 && this.hand.length == 2) {
+    if (this.secondaryHandTotal == 21 && this.hand.length == 2) {
+      // Update text for a blackjack
       this.handTotalText.text = BLACKJACK_DISPLAY_TEXT;
-    }
-
-    else if (this.handTotal > 21) {
-       this.handTotalText.text = this.handTotal + " " + BUST_DISPLAY_TEXT; 
-     }
-
-     else if (this.handTotal == 21 || this.secondaryHandTotal == 21) {
-       this.handTotalText.text = "21";
-     }
-
-     else if (!hasAce) {
+    } else if (this.handTotal > 21) {
+      // Update text for a bust
+      this.handTotalText.text = this.handTotal + " " + BUST_DISPLAY_TEXT; 
+    } else if (this.handTotal == 21 || this.secondaryHandTotal == 21) {
+      // Simplify text to 21 when achieved (in case the hand is 11/21)
+      this.handTotalText.text = "21";
+    } else if (!hasAce) {
+      // Update text to the total when player has no aces
       this.handTotalText.text = this.handTotal;
-     }
-
-     else if (hasAce && this.secondaryHandTotal > 21) {
+    } else if (hasAce && this.secondaryHandTotal > 21) {
+      // Update text to the total when the player has aces but the secondary total is a bust
       this.handTotalText.text = this.handTotal;
+    } else if (hasAce) {
+      // Update text to show both totals when the secondary total doesn't bust
+      this.handTotalText.text = this.handTotal + "/" + this.secondaryHandTotal;
     }
-
-    else if (hasAce) {
-       this.handTotalText.text = this.handTotal + "/" + this.secondaryHandTotal;
-     }
-   }
+  }
 
    pay(amount) {
      this.money += amount;
@@ -273,16 +272,12 @@ dealer.handContainer.position.set(1320, 100);
 //-----------------------------------------------------------
 // Game logic
 
-// Boolean to check if player has already hit (to check if they can double down)
-let hasHit = false;
+let hasBet = false; // For performing actions
+let hasHit = false; // For doubling down
+let hasStood = false; // For knowing if the player has stood
+let isPlayersTurn = true; // For knowing if the player is allowed to perform actions
 
-// Boolean to check if player has already stood on their turn
-let hasStood = false;
-
-// Boolean to check if player has already bet on their turn
-let hasBet = false;
-
-// Face down card sprite for initial dealer hand (player should only be able to see one upcard from the dealer)
+// Face down card sprite for the dealer's hand
 let faceDownCardSprite = Sprite.from('./assets/cards/card-back.png');
 faceDownCardSprite.width = CARD_DIMENSIONS.width;
 faceDownCardSprite.height = CARD_DIMENSIONS.height;
@@ -290,14 +285,9 @@ faceDownCardSprite.position.set(30, 30);
 faceDownCardSprite.zIndex = 1;
 dealer.handContainer.addChild(faceDownCardSprite);
 
-// The dealer's hand total should not be visible before their first card is revealed
+// Special dealer behavior
 dealer.handTotalText.visible = false;
-
-// The dealer is a special type of player, so they technically have a bet too, but it should never be shown
 dealer.moneyText.visible = false;
-
-// Boolean to check if it is players turn (you are not allowed to press buttons if it is not your turn!)
-let isPlayersTurn = true;
 
 // Function that hides all containers from view (meant to be used to hide things before player has bet)
 function hideContainers() {
@@ -315,20 +305,23 @@ function showContainers() {
 }
 
 // Function to reset the GUI to its original position after a hand has been played
-async function resetGame() {
-  await sleep(2000);
-  // Resetting flag booleans
+async function resetGame(fromStart = false) {
+  if (!fromStart) await sleep(2000);
+
+  // Reset logic
   hasHit = false;
   hasStood = false;
   hasBet = false;
   isPlayersTurn = true;
+
   hideContainers();
-  // Making the betting box visible again
+
+  // Make the betting box visible again
   moneyInput.className = "modal";
   moneyInput.focus();
   moneyInput.select();
 
-  // Deleting all added cards from the player's hand containers
+  // Delete all added cards from every player
   for (const currentPlayer of players) {
     for (const card of currentPlayer.hand) {
       currentPlayer.handContainer.removeChild(card.sprite);
@@ -339,114 +332,115 @@ async function resetGame() {
 
 // Function to pay out player depending on if they won, lost, tied, or got a Blackjack
 function payPlayer(player) {
-
-  console.log(player.getSignificantTotal(), dealer.getSignificantTotal());
-  // For Blackjacks
+  // Do not continue if the dealer has a blackjack and the player doesn't
   if (player.handTotalText.text != BLACKJACK_DISPLAY_TEXT && dealer.handTotalText.text == BLACKJACK_DISPLAY_TEXT) return;
 
+  // Pay out a blackjack if the dealer doesn't have a blackjack
   if (player.handTotalText.text == BLACKJACK_DISPLAY_TEXT && dealer.handTotalText.text != BLACKJACK_DISPLAY_TEXT) {
     player.pay(Math.ceil(2.5 * player.bet));
+    return;
   }
-
-  else if (player.getSignificantTotal() > dealer.getSignificantTotal() || dealer.getSignificantTotal() > 21) {
+  
+  // Pay out a win from a higher total or dealer bust
+  if (player.getSignificantTotal() > dealer.getSignificantTotal() || dealer.getSignificantTotal() > 21) {
     player.pay(2 * player.bet);
+    return;
   }
-  // For pushes
-  else if (player.getSignificantTotal() == dealer.getSignificantTotal()) {
+  
+  // Pay out a push from an equivalent total
+  if (player.getSignificantTotal() == dealer.getSignificantTotal()) {
     player.pay(player.bet);
   }
 }
 
 // Function to handle dealer drawing cards
 async function dealerTurn() {
-  dealer.getHandTotal();
   await sleep(1000);
-  console.log(dealer.handTotal);
+
   if (dealer.handTotal < 17 && dealer.secondaryHandTotal != 21) {
     dealer.addCard();
     dealerTurn();
     return;
   }
+
   payPlayer(player);
   resetGame();
 }
 
 function hit() {
-  // Making sure that you don't have a blackjack or are over 21
-  if (player.handTotal < 21 && (player.handTotalText.text != BLACKJACK_DISPLAY_TEXT) && isPlayersTurn) {
-    hasHit = true;
-    player.addCard();
-    // Resets game upon player busting
-    if (player.handTotal > 21) {
-      resetGame();
-    }
+  if (player.getSignificantTotal() >= 21 || !isPlayersTurn) return;
 
-    else if (player.handTotal == 21 || player.secondaryHandTotal == 21) {
-      stand();
-    }
+  hasHit = true;
+  player.addCard();
+  
+  if (player.handTotal > 21) {
+    resetGame();
+  } else if (player.getSignificantTotal() == 21) {
+    stand();
   }
 }
+hitButton.on("click", hit);
+
+function stand() {
+  if (hasStood) return;
+
+  hasStood = true;
+  isPlayersTurn = false;
+  
+  dealer.handTotalText.visible = true;
+  dealer.hand[1].sprite.visible = true;
+  faceDownCardSprite.visible = false;
+
+  dealerTurn();
+}
+standButton.on("click", stand);
 
 // Doubling down doubles your bet, hits once, then stands
 function doubleDown() {
   // Repeating original bet
-  if (isPlayersTurn && !hasHit && player.money >= player.bet) {
-    player.pay(-player.bet);
-    player.bet *= 2;
-    console.log(player.bet);
-    player.addCard();
-    if (player.handTotal > 21) {
-      resetGame()
-    } 
-    else { 
-      stand();
-    }
+  if (!isPlayersTurn || hasHit || player.money < player.bet) return;
+
+  player.pay(-player.bet);
+  player.bet *= 2;
+
+  player.addCard();
+
+  if (player.handTotal > 21) {
+    resetGame();
+  } else {
+    stand();
   }
 }
+doubleDownButton.on("click", doubleDown);
 
-function stand() {
-  if (hasStood == false) {
-    hasStood = true;
-    isPlayersTurn = false;
-    
-    dealer.handTotalText.visible = true;
-    dealer.hand[1].sprite.visible = true;
-    faceDownCardSprite.visible = false;
-
-    dealerTurn();
-  }
-}
-
-async function checkForBlackJack(player) {
+async function checkForBlackjack(player) {
   if (player.handTotalText.text == BLACKJACK_DISPLAY_TEXT) {
     await sleep(1000);
     stand();
   }
 }
 
-// Adding button listeners HERE
-hitButton.on("pointerup", hit);
-standButton.on("pointerup", stand);
-doubleDownButton.on("pointerup", doubleDown);
-
 function startHand() {
-  //giving the player and dealer brand new cards
-  player.addCards(2);
-  dealer.addCards(2);
+  // Give all players fresh cards
+  for (const player of players) {
+    player.addCards(2);
+  }
 
-  // Replacing one starter card sprite with card back sprite
-  console.log(dealer.handContainer.children);
+  // Replace the second card sprite with the dummy card back
   dealer.hand[1].sprite.visible = false;
   faceDownCardSprite.visible = true;
 
   showContainers();
-  checkForBlackJack(player);
+  checkForBlackjack(player);
 }
 
+// Listen for bet input box updates
 function betUpdated() {
   // Removes leading 0s and anything that's not a number
   moneyInput.value = moneyInput.value.replace(/^0+|[^0-9]/g, "");
 }
+moneyInput.addEventListener("input", betUpdated);
+moneyInput.addEventListener("propertychange", betUpdated); // for IE8
 
 function bet() {
   let bet = parseInt(moneyInput.value) || 0;
@@ -458,17 +452,9 @@ function bet() {
   startHand();
 }
 
-// Listen for bet input update
-moneyInput.addEventListener("input", betUpdated);
-moneyInput.addEventListener("propertychange", betUpdated); // for IE8
-
 moneyInput.addEventListener("keypress", function(event) {
   if (event.key === "Enter") bet();
 });
 
-// Starting off with containers hidden
-hideContainers();
-moneyInput.focus();
-moneyInput.select();
-
-console.log(dealer.handContainer.children);
+// Start game
+resetGame(true);
