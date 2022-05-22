@@ -345,7 +345,7 @@ function payPlayer(player) {
   if (!player.hasBlackjack() && dealer.hasBlackjack()) return;
 
   // Pay out a blackjack if the dealer doesn't have a blackjack
-  if (player.handTotalText.text == BLACKJACK_DISPLAY_TEXT && dealer.handTotalText.text != BLACKJACK_DISPLAY_TEXT) {
+  if (player.hasBlackjack() && !dealer.hasBlackjack()) {
     player.pay(Math.ceil(2.5 * player.bet));
     return;
   }
@@ -407,7 +407,7 @@ standButton.on("click", stand);
 // Doubling down doubles your bet, hits once, then stands
 function doubleDown() {
   // Repeating original bet
-  if (!isPlayersTurn || hasHit || player.money < player.bet) return;
+  if (!isPlayersTurn || hasHit || player.money < player.bet || player.hasBlackjack()) return;
 
   player.pay(-player.bet);
   player.bet *= 2;
@@ -423,7 +423,7 @@ function doubleDown() {
 doubleDownButton.on("click", doubleDown);
 
 async function checkForBlackjack(player) {
-  if (player.handTotalText.text == BLACKJACK_DISPLAY_TEXT) {
+  if (player.hasBlackjack()) {
     await sleep(1000);
     stand();
   }
