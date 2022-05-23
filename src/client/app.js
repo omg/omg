@@ -263,8 +263,7 @@ class Player {
 
    // Checks if player has a Blackjack
    hasBlackjack() {
-     if (this.getSignificantTotal() == 21 && this.hand.length == 2) return true;
-     return false;
+     return this.getSignificantTotal() == 21 && this.hand.length == 2;
    }
 }
 
