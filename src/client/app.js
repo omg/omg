@@ -8,7 +8,8 @@ import scss from './sass/style.scss';
 
 const app = new Application({
 	autoResize: true,
-  resolution: devicePixelRatio
+  resolution: devicePixelRatio,
+  autoDensity: true
 });
 document.body.appendChild(app.view);
 
