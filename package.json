@@ -37,6 +37,7 @@
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
+    "animejs": "^3.2.1",
     "pixi.js": "^6.3.2"
   }
 }
