@@ -10,8 +10,7 @@ import scss from './sass/style.scss';
 const app = new Application({
 	autoResize: true,
   resolution: devicePixelRatio,
-  autoDensity: true,
-  backgroundColor: 0xccc
+  autoDensity: true
 });
 document.body.appendChild(app.view);
 
@@ -58,8 +57,7 @@ function shuffle(array) {
 let x = 0;
 function createLetter(letter) {
   let keySprite = Sprite.from('./assets/letters/key.png');
-  keySprite.width = 24; //80, 100
-  keySprite.height = 30;
+  keySprite.scale.set(0.3);
 
   let keyText = new Text(letter, {
     fontFamily: 'Gotham Black',
@@ -67,12 +65,12 @@ function createLetter(letter) {
     fill: 0x000000,
     align: 'center'
   });
-  keyText.scale.set(2, 2);
-  keyText.anchor.set(0.5, 0.5);
+  keyText.scale.set(2);
+  keyText.anchor.set(0.5);
   keyText.position.set(40, 50 - 3);
 
   keySprite.position.x = x;
-  x += 24 + 2; //
+  x += 24 + 2;
 
   keySprite.addChild(keyText);
   keyContainer.addChild(keySprite);
@@ -96,12 +94,14 @@ function createLetter(letter) {
 
 }
 
+keyContainer.scale.set(0.9)
+
 function createWord(word) {
   for (let i = 0; i < word.length; i++) {
     setTimeout(() => {
       createLetter(word[i]);
       console.log(i);
-    }, 70 * i + 8500);
+    }, 70 * i + 500);
   }
 }
 
