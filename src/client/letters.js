@@ -14,9 +14,6 @@ const app = new Application({
 });
 document.body.appendChild(app.view);
 
-let keyContainer = new Container();
-app.stage.addChild(keyContainer);
-
 //-----------------------------------------------------------
 // Utility
 
@@ -43,6 +40,9 @@ function shuffle(array) {
 
 //-----------------------------------------------------------
 // Constants
+
+let keyContainer = new Container();
+app.stage.addChild(keyContainer);
 
 let x = 0;
 function createLetter(letter) {
@@ -96,7 +96,6 @@ function createWord(word) {
 }
 
 createWord("KINDERGARTEN");
-
 
 
 //-----------------------------------------------------------
