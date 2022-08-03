@@ -17,16 +17,6 @@ document.body.appendChild(app.view);
 let keyContainer = new Container();
 app.stage.addChild(keyContainer);
 
-// Listen for window resize events
-function resize() {
-	app.renderer.resize(window.innerWidth, window.innerHeight);
-
-  // Reposition the action container
-  keyContainer.position.set(window.innerWidth / 2, window.innerHeight / 2);
-}
-window.addEventListener('resize', resize);
-resize();
-
 //-----------------------------------------------------------
 // Utility
 
@@ -107,7 +97,17 @@ function createWord(word) {
 
 createWord("KINDERGARTEN");
 
-//app.stage.addChild(keyText);
 
-//keySprite.width = 80;
-//keySprite.height = 100;
+
+//-----------------------------------------------------------
+// Resize stuffs
+
+// Listen for window resize events
+function resize() {
+	app.renderer.resize(window.innerWidth, window.innerHeight);
+
+  // Reposition the action container
+  keyContainer.position.set(window.innerWidth / 2, window.innerHeight / 2);
+}
+window.addEventListener('resize', resize);
+resize();
