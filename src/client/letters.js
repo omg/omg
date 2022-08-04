@@ -1,4 +1,4 @@
-import { Application, Sprite, Graphics, Text, Container } from 'pixi.js';
+import { Application, Sprite, Graphics, Text, Container, AppLoaderPlugin } from 'pixi.js';
 import anime from 'animejs';
 
 // By including this line, webpack adds the CSS style to our HTML page
@@ -38,11 +38,42 @@ function shuffle(array) {
   return array;
 }
 
+function connectResizeFunction(fx) {
+  window.addEventListener('resize', fx);
+  fx();
+}
+
 //-----------------------------------------------------------
-// Constants
+// game
+
+let gameContainer = new Container();
+app.stage.addChild(gameContainer);
+
+// Background
+
+let backgroundColor = new Graphics();
+gameContainer.addChild(backgroundColor);
+
+let blob = Sprite.from('./assets/letters/whiteBlob.png');
+backgroundColor.addChild(blob);
+blob.tint = 0xffe29c;
+
+connectResizeFunction(() => {
+  if (window.innerWidth / window.innerHeight > 1) {
+    blob.height = window.innerHeight * 1.1;
+    blob.width = blob.height;
+  } else {
+    blob.width = window.innerWidth * 1.1;
+    blob.height = blob.width;
+  }
+  blob.x = window.innerWidth / 2 - blob.width / 2;
+  blob.y = window.innerHeight / 2 - blob.height / 2;
+});
+
+//
 
 let keyContainer = new Container();
-app.stage.addChild(keyContainer);
+gameContainer.addChild(keyContainer);
 
 let x = 0;
 function createLetter(letter) {
@@ -97,7 +128,6 @@ function createWord(word) {
 
 createWord("KINDERGARTEN");
 
-
 //-----------------------------------------------------------
 // Resize stuffs
 
@@ -107,6 +137,9 @@ function resize() {
 
   // Reposition the action container
   keyContainer.position.set(window.innerWidth / 2, window.innerHeight / 2);
+
+  // Redraw the background color
+  backgroundColor.clear().beginFill(0xffd369).drawRect(0, 0, window.innerWidth, window.innerHeight);
 }
 window.addEventListener('resize', resize);
 resize();
