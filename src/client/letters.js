@@ -77,12 +77,17 @@ gameContainer.addChild(keyContainer);
 
 let x = 0;
 function createLetter(letter) {
+  if (letter == " ") {
+    x += 8;
+    return;
+  }
+
   let keySprite = Sprite.from('./assets/letters/key.png');
   keySprite.scale.set(0.3);
 
   let keyText = new Text(letter, {
     fontFamily: 'Gotham Black',
-    fontSize: 34,
+    fontSize: 33,
     fill: 0x000000,
     align: 'center'
   });
