@@ -1,4 +1,4 @@
-import { Application, Sprite, Graphics, Text, Container, AppLoaderPlugin } from 'pixi.js';
+import { Application, Sprite, Graphics, Text, Container } from 'pixi.js';
 import anime from 'animejs';
 
 // By including this line, webpack adds the CSS style to our HTML page
