@@ -126,7 +126,11 @@ function createWord(word) {
   }
 }
 
-createWord("KINDERGARTEN");
+//createWord("KINDERGARTEN");
+window.addEventListener('keydown', (event) => {
+  if (event.key.length != 1) return;
+  createLetter(event.key.toUpperCase());
+})
 
 //-----------------------------------------------------------
 // Resize stuffs
