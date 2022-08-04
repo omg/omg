@@ -1,8 +1,12 @@
-import { Application, Sprite, Graphics, Text, Container, AppLoaderPlugin } from 'pixi.js';
+import { Application, Sprite, Graphics, Text, Container } from 'pixi.js';
 import anime from 'animejs';
 
 // By including this line, webpack adds the CSS style to our HTML page
 import scss from './sass/style.scss';
+
+// socket.io
+import { io } from "socket.io-client";
+const socket = io();
 
 //-----------------------------------------------------------
 // Application
@@ -135,7 +139,12 @@ function createWord(word) {
 window.addEventListener('keydown', (event) => {
   if (event.key.length != 1) return;
   createLetter(event.key.toUpperCase());
+  socket.emit('letter', event.key.toUpperCase());
 })
+
+socket.on('letter', (letter) => {
+  createLetter(letter);
+});
 
 //-----------------------------------------------------------
 // Resize stuffs
