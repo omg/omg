@@ -74,6 +74,11 @@ connectResizeFunction(() => {
   blob.y = window.innerHeight / 2 - blob.height / 2;
 });
 
+// Console logging userID
+socket.on('tellID', (userID) => {
+  console.log(userID);
+});
+
 //
 
 //-----------------------------------------------------------
@@ -82,9 +87,6 @@ connectResizeFunction(() => {
 // Listen for window resize events
 function resize() {
 	app.renderer.resize(window.innerWidth, window.innerHeight);
-
-  // Reposition the action container
-  keyContainer.position.set(window.innerWidth / 2, window.innerHeight / 2);
 
   // Redraw the background color
   backgroundColor.clear().beginFill(0xffd369).drawRect(0, 0, window.innerWidth, window.innerHeight);

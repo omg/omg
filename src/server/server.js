@@ -14,15 +14,46 @@ app.get("/", (req, res) => {
 
 const PORT = 8080;
 
+let gameState = {
+  players: [],
+  turnIndex: 0,
+  rollsRemaining: 3,
+  dice: [],
+  heldDice: []
+}
+
+// Giving each player a userID when they join the server
+let currentUserID = 1;
+
+let connectedPlayers = {};
+
+// Function to get number of players connected to the server
+function getNumberOfPlayers() {
+  return Object.keys(connectedPlayers).length;
+}
+
+function checkIfStart() {
+
+}
+
 io.on('connection', (socket) => {
   console.log('User connected');
 
+  let userID = currentUserID;
+  connectedPlayers[userID] = socket;
+  currentUserID++;
+
+  socket.emit('tellID', userID);
+
+  console.log("Connected players: " + getNumberOfPlayers());
+
+  checkIfStart();
+
   socket.on('disconnect', () => {
     console.log('User disconnected');
-  });
+    delete connectedPlayers[userID];
 
-  socket.on('letter', (letter) => {
-    socket.broadcast.emit('letter', letter);
+    console.log("Connected players: " + getNumberOfPlayers());
   });
 });
 
