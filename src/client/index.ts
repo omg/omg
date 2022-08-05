@@ -1,1 +1,1 @@
-import './letters.js';
+import './yacht.js';
