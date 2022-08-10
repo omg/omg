@@ -1,9 +1,13 @@
+import { Lobby, Player } from "./game";
+import { NumberGame } from "./numbergame";
+
 const express = require("express");
 const app = express();
 const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
+export default io;
 
 const path = require("path");
 
@@ -14,26 +18,25 @@ app.get("/", (req, res) => {
 
 const PORT = 8080;
 
-let connectedPlayers = {};
-let currentUserID = 1;
+let connectedPlayers = [];
 
-function getNumberOfPlayers() {
-  return Object.keys(connectedPlayers).length;
-}
-
-export default io;
+let defaultGame = new NumberGame();
+let defaultLobby = new Lobby(defaultGame);
 
 io.on('connection', (socket) => {
-  let userID = currentUserID;
-  connectedPlayers[userID] = socket;
-  currentUserID++;
+  let player = new Player(socket);
+  connectedPlayers.push(player);
 
-  console.log('Player connected to Boba server - ' + getNumberOfPlayers() + ' online.');
+  console.log('Player connected to Boba server - ' + connectedPlayers.length + ' online.');
 
+  defaultLobby.addPlayer(player);
+  
   socket.on('disconnect', () => {
-    delete connectedPlayers[userID];
+    connectedPlayers.splice(connectedPlayers.indexOf(player), 1);
 
-    console.log("Player disconnected from Boba server - " + getNumberOfPlayers() + ' online.');
+    defaultLobby.removePlayer(player);
+
+    console.log("Player disconnected from Boba server - " + connectedPlayers.length + ' online.');
   });
 });
 
