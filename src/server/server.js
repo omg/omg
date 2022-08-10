@@ -14,49 +14,29 @@ app.get("/", (req, res) => {
 
 const PORT = 8080;
 
-let gameState = {
-  players: [],
-  turnIndex: 0,
-  rollsRemaining: 3,
-  dice: [],
-  heldDice: []
-}
-
-// Giving each player a userID when they join the server
+let connectedPlayers = {};
 let currentUserID = 1;
 
-let connectedPlayers = {};
-
-// Function to get number of players connected to the server
 function getNumberOfPlayers() {
   return Object.keys(connectedPlayers).length;
 }
 
-function checkIfStart() {
-
-}
+export default io;
 
 io.on('connection', (socket) => {
-  console.log('User connected');
-
   let userID = currentUserID;
   connectedPlayers[userID] = socket;
   currentUserID++;
 
-  socket.emit('tellID', userID);
-
-  console.log("Connected players: " + getNumberOfPlayers());
-
-  checkIfStart();
+  console.log('Player connected to Boba server - ' + getNumberOfPlayers() + ' online.');
 
   socket.on('disconnect', () => {
-    console.log('User disconnected');
     delete connectedPlayers[userID];
 
-    console.log("Connected players: " + getNumberOfPlayers());
+    console.log("Player disconnected from Boba server - " + getNumberOfPlayers() + ' online.');
   });
 });
 
 server.listen(PORT, () => {
-  console.log("💝 OMG server running at port " + PORT);
+  console.log("💝 Boba server active!");
 });
