@@ -50,7 +50,7 @@ export class Lobby {
     player.socket.emit('joinLobby', this.ID); // TODO: tell the user who else is in the lobby and update it + chat stuff ?
 
     if (this.inProgress) {
-      player.socket.emit('initGame', this.game.getGameCode());
+      player.socket.emit('initGame', this.game.gameCode);
       if (this.game.playerJoined) this.game.playerJoined(player);
     }
   }
@@ -92,24 +92,24 @@ export type GameState = {
 }
 
 export class BaseGame {
+  gameCode: string;
+  gameName: string;
+
   gameState: GameState;
   lobby: Lobby;
 
   init(lobby: Lobby) {
     this.lobby = lobby;
 
-    io.to(this.lobby.ID).emit('initGame', this.getGameCode());
+    io.to(this.lobby.ID).emit('initGame', this.gameCode);
 
     this.startGame();
   }
 
-  getGameCode: () => string;
-  getGameName: () => string;
-
-  startGame: () => void;
-  playerJoined?: (player: Player) => void;
-  playerQuit?: (player: Player) => void;
-  cleanup?: () => void;
+  startGame() {}
+  playerJoined?(player: Player) {};
+  playerQuit?(player: Player) {};
+  cleanup?() {};
 
   endGame() {
     this.cleanup();
