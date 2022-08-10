@@ -2,7 +2,7 @@ import { Socket } from "socket.io";
 import io from './server';
 
 let currentPlayerID = 1;
-class Player {
+export class Player {
   ID: number;
   username: string;
   socket: Socket;
@@ -23,7 +23,7 @@ class Player {
   }
 }
 
-class Lobby {
+export class Lobby {
   ID: string;
   players: [Player?];
 
@@ -87,11 +87,11 @@ class Lobby {
   }
 }
 
-type GameState = {
+export type GameState = {
   [key: string]: any
 }
 
-class BaseGame {
+export class BaseGame {
   gameState: GameState;
   lobby: Lobby;
 
@@ -151,7 +151,7 @@ class BaseGame {
   }
 }
 
-type StateObject<T> = {
+export type StateObject<T> = {
   value: T;
   visibleTo: [Player?]; // add teams later
 }
