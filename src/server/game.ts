@@ -48,6 +48,7 @@ export class Lobby {
 
     player.socket.join(this.ID);
     player.socket.emit('joinLobby', this.ID); // TODO: tell the user who else is in the lobby and update it + chat stuff ?
+    console.log("Player joined lobby " + this.ID + " - " + this.players.length + " in lobby");
 
     if (this.inProgress) {
       player.socket.emit('initGame', this.game.gameCode);
@@ -62,6 +63,7 @@ export class Lobby {
 
       player.socket.leave(this.ID);
       player.socket.emit('leaveLobby', this.ID); // TODO same as above
+      console.log("Player left lobby " + this.ID + " - " + this.players.length + " in lobby");
 
       if (this.inProgress) {
         player.socket.emit('endGame');
@@ -102,6 +104,7 @@ export class BaseGame {
     this.lobby = lobby;
 
     io.to(this.lobby.ID).emit('initGame', this.gameCode);
+    // initializing the game on the client without any information results in a weird limbo state on the client
 
     this.startGame();
   }
