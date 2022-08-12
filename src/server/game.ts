@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { Socket } from "socket.io";
 import io from './server';
 
@@ -31,7 +32,7 @@ export class Lobby {
   inProgress: boolean;
   
   constructor(game: BaseGame) {
-    this.ID = crypto.randomUUID();
+    this.ID = randomUUID();
     this.players = [];
 
     this.game = game;
