@@ -1,3 +1,4 @@
+import { DancingSpaghettiMonster } from "../shared/dsm";
 import { Lobby, Player } from "./game";
 import { NumberGame } from "./numbergame";
 
@@ -28,6 +29,10 @@ io.on('connection', (socket) => {
   connectedPlayers.push(player);
 
   console.log('Player connected to Boba server - ' + connectedPlayers.length + ' online.');
+
+  let dsm = new DancingSpaghettiMonster(connectedPlayers.length, 'dsm!');
+  socket.emit('player2', dsm);
+  socket.emit('player', dsm);
 
   defaultLobby.addPlayer(player);
   

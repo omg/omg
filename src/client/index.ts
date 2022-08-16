@@ -1,1 +1,1 @@
-import './yacht.js';
+import './games/yacht.js';
