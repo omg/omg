@@ -5,8 +5,8 @@ import anime from 'animejs';
 import scss from './sass/style.scss';
 
 // socket.io
-import { io } from "socket.io-client";
-const socket = io();
+// import { io } from "socket.io-client";
+// const socket = io();
 
 //-----------------------------------------------------------
 // Application
@@ -75,9 +75,9 @@ connectResizeFunction(() => {
 });
 
 // Console logging userID
-socket.on('tellID', (userID) => {
-  console.log(userID);
-});
+// socket.on('tellID', (userID) => {
+//   console.log(userID);
+// });
 
 //
 
