@@ -52,7 +52,7 @@ export class Room {
     console.log("Player joined room " + this.ID + " - " + this.players.length + " in room");
 
     if (this.inProgress) {
-      player.socket.emit('initGame', this.game.gameCode);
+      player.socket.emit('initGame', this.game.gameName);
       if (this.game.playerJoined) this.game.playerJoined(player);
     }
   }
@@ -115,7 +115,7 @@ export class BaseGame {
   cleanup?() {};
 
   endGame() {
-    this.cleanup();
+    if (this.cleanup) this.cleanup();
     delete this.gameState;
     delete this.room;
     this.room.gameEnded();
