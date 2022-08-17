@@ -95,7 +95,6 @@ export type GameState = {
 }
 
 export class BaseGame {
-  gameCode: string;
   gameName: string;
 
   gameState: GameState;
@@ -104,7 +103,7 @@ export class BaseGame {
   init(lobby: Lobby) {
     this.lobby = lobby;
 
-    io.to(this.lobby.ID).emit('initGame', this.gameCode);
+    io.to(this.lobby.ID).emit('initGame', this.gameName);
     // initializing the game on the client without any information results in a weird limbo state on the client
 
     this.startGame();
