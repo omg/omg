@@ -1,6 +1,6 @@
-import { BaseGame } from "./game"
 import { DummyGame } from "./games/DummyGame"
 import { NumberGame } from "./games/NumberGame"
+import { BaseGame } from "./objects/BaseGame";
 
 type GameSettings = {
   name: string;
