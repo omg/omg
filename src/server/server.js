@@ -1,5 +1,5 @@
 import { Room, Player } from "./game";
-import { NumberGame } from "./games/numbergame";
+import { NumberGame } from "./games/NumberGame";
 
 const express = require("express");
 const app = express();

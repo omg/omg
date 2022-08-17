@@ -1,5 +1,6 @@
 import { randomUUID } from "crypto";
 import { Socket } from "socket.io";
+import { GameDirectory, GameCode } from "./GameDirectory";
 import io from './server';
 
 let currentPlayerID = 1;
@@ -28,14 +29,16 @@ export class Room {
   ID: string;
   players: [Player?];
 
-  game: BaseGame;
+  gameCode: GameCode;
   inProgress: boolean;
+
+  game?: BaseGame;
   
-  constructor(game: BaseGame) {
+  constructor(gameCode: GameCode) {
     this.ID = randomUUID();
     this.players = [];
 
-    this.game = game;
+    this.gameCode = gameCode;
     this.inProgress = false;
   }
 
@@ -52,7 +55,7 @@ export class Room {
     console.log("Player joined room " + this.ID + " - " + this.players.length + " in room");
 
     if (this.inProgress) {
-      player.socket.emit('initGame', this.game.gameName);
+      player.socket.emit('initGame', this.gameCode);
       if (this.game.playerJoined) this.game.playerJoined(player);
     }
   }
@@ -74,18 +77,18 @@ export class Room {
   }
 
   startGame() {
-    if (this.inProgress || !this.game) return;
+    if (this.inProgress) return;
+
+    this.game = new GameDirectory[this.gameCode].game();
     this.inProgress = true;
     this.game.startGame();
   }
 
   endGame() {
-    if (!this.inProgress || !this.game) return;
-    this.game.endGame();
-  }
-
-  gameEnded() {
     if (!this.inProgress) return;
+
+    if (this.game.cleanup) this.game.cleanup();
+    delete this.game;
     this.inProgress = false;
   }
 }
@@ -95,7 +98,7 @@ export type GameState = {
 }
 
 export class BaseGame {
-  gameName: string;
+  gameCode: GameCode;
 
   gameState: GameState;
   room: Room;
@@ -103,7 +106,7 @@ export class BaseGame {
   init(room: Room) {
     this.room = room;
 
-    io.to(this.room.ID).emit('initGame', this.gameName);
+    io.to(this.room.ID).emit('initGame', this.gameCode);
     // initializing the game on the client without any information results in a weird limbo state on the client
 
     this.startGame();
@@ -114,12 +117,10 @@ export class BaseGame {
   playerQuit?(player: Player) {};
   cleanup?() {};
 
-  endGame() {
-    if (this.cleanup) this.cleanup();
-    delete this.gameState;
-    delete this.room;
-    this.room.gameEnded();
-  }
+  // endGame() {
+  //   if (this.cleanup) this.cleanup();
+  //   this.room.gameEnded();
+  // }
 
   // broadcastState(event: string = "init") {
   //   for (let player in this.room.players) {
