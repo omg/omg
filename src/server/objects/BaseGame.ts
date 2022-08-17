@@ -9,10 +9,10 @@ export class BaseGame {
   gameState: GameState;
   room: Room;
 
-  init(room: Room) {
+  constructor(room: Room) {
     this.room = room;
 
-    io.to(this.room.ID).emit('initGame', this.gameCode);
+    io.to(room.ID).emit('initGame', this.gameCode);
     // initializing the game on the client without any information results in a weird limbo state on the client
 
     this.startGame();
