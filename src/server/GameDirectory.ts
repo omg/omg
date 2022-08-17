@@ -10,11 +10,11 @@ type GameSettings = {
 }
 
 export enum GameCode {
-  NUMBER_GAME,
-  DUMMY_GAME
+  DUMMY_GAME = "DG",
+  NUMBER_GAME = "NG"
 }
 
-export const GameDirectory: {[index: number]: GameSettings} = {
+export const GameDirectory: {[index: string]: GameSettings} = {
   [GameCode.DUMMY_GAME]: {
     name: "Dummy Game",
     game: DummyGame,
