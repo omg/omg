@@ -1,5 +1,6 @@
-import { Room, Player } from "./game";
-import { NumberGame } from "./games/NumberGame";
+import { GameCode } from "./GameDirectory";
+import { Player } from "./objects/Player";
+import { Room } from "./objects/Room";
 
 const express = require("express");
 const app = express();
@@ -20,8 +21,7 @@ const PORT = 8080;
 
 let connectedPlayers = [];
 
-let defaultGame = new NumberGame();
-let defaultRoom = new Room(defaultGame);
+let defaultRoom = new Room(GameCode.NUMBER_GAME);
 
 io.on('connection', (socket) => {
   let player = new Player(socket);
