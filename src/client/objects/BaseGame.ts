@@ -1,5 +1,4 @@
 import { GameCode } from '../GameDirectory';
-import { Player } from './Player';
 import { Room } from './Room';
 
 export class BaseGame {
@@ -22,9 +21,4 @@ export class BaseGame {
 
 export type GameState = {
   [key: string]: any
-}
-
-export type StateObject<T> = {
-  value: T;
-  visibleTo: [Player?]; // add teams later
 }
