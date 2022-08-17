@@ -12,7 +12,7 @@ export class NumberGame extends BaseGame {
   startGame() {
     this.gameState = {
       epicNumber: {
-        visibleTo: this.lobby.players,
+        visibleTo: this.room.players,
         value: Math.ceil(Math.random() * 10)
       }
     }

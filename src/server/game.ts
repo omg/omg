@@ -24,7 +24,7 @@ export class Player {
   }
 }
 
-export class Lobby {
+export class Room {
   ID: string;
   players: [Player?];
 
@@ -48,8 +48,8 @@ export class Lobby {
     this.players.push(player);
 
     player.socket.join(this.ID);
-    player.socket.emit('joinLobby', this.ID); // TODO: tell the user who else is in the lobby and update it + chat stuff ?
-    console.log("Player joined lobby " + this.ID + " - " + this.players.length + " in lobby");
+    player.socket.emit('joinRoom', this.ID); // TODO: tell the user who else is in the room and update it + chat stuff ?
+    console.log("Player joined room " + this.ID + " - " + this.players.length + " in room");
 
     if (this.inProgress) {
       player.socket.emit('initGame', this.game.gameCode);
@@ -63,8 +63,8 @@ export class Lobby {
       this.players.splice(index, 1);
 
       player.socket.leave(this.ID);
-      player.socket.emit('leaveLobby', this.ID); // TODO same as above
-      console.log("Player left lobby " + this.ID + " - " + this.players.length + " in lobby");
+      player.socket.emit('leaveRoom', this.ID); // TODO same as above
+      console.log("Player left room " + this.ID + " - " + this.players.length + " in room");
 
       if (this.inProgress) {
         player.socket.emit('endGame');
@@ -98,12 +98,12 @@ export class BaseGame {
   gameName: string;
 
   gameState: GameState;
-  lobby: Lobby;
+  room: Room;
 
-  init(lobby: Lobby) {
-    this.lobby = lobby;
+  init(room: Room) {
+    this.room = room;
 
-    io.to(this.lobby.ID).emit('initGame', this.gameName);
+    io.to(this.room.ID).emit('initGame', this.gameName);
     // initializing the game on the client without any information results in a weird limbo state on the client
 
     this.startGame();
@@ -117,12 +117,12 @@ export class BaseGame {
   endGame() {
     this.cleanup();
     delete this.gameState;
-    delete this.lobby;
-    this.lobby.gameEnded();
+    delete this.room;
+    this.room.gameEnded();
   }
 
   // broadcastState(event: string = "init") {
-  //   for (let player in this.lobby.players) {
+  //   for (let player in this.room.players) {
 
   //   }
   // }

@@ -1,6 +1,5 @@
-import { DancingSpaghettiMonster } from "../shared/dsm";
-import { Lobby, Player } from "./game";
-import { NumberGame } from "./numbergame";
+import { Room, Player } from "./game";
+import { NumberGame } from "./games/numbergame";
 
 const express = require("express");
 const app = express();
@@ -22,7 +21,7 @@ const PORT = 8080;
 let connectedPlayers = [];
 
 let defaultGame = new NumberGame();
-let defaultLobby = new Lobby(defaultGame);
+let defaultRoom = new Room(defaultGame);
 
 io.on('connection', (socket) => {
   let player = new Player(socket);
@@ -30,16 +29,12 @@ io.on('connection', (socket) => {
 
   console.log('Player connected to Boba server - ' + connectedPlayers.length + ' online.');
 
-  let dsm = new DancingSpaghettiMonster(connectedPlayers.length, 'dsm!');
-  socket.emit('player2', dsm);
-  socket.emit('player', dsm);
-
-  defaultLobby.addPlayer(player);
+  defaultRoom.addPlayer(player);
   
   socket.on('disconnect', () => {
     connectedPlayers.splice(connectedPlayers.indexOf(player), 1);
 
-    defaultLobby.removePlayer(player);
+    defaultRoom.removePlayer(player);
 
     console.log("Player disconnected from Boba server - " + connectedPlayers.length + ' online.');
   });
