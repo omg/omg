@@ -1,5 +1,5 @@
-import { BaseGame } from "../game";
 import { GameCode } from "../GameDirectory";
+import { BaseGame } from "../objects/BaseGame";
 
 export type DummyGameState = {}
 

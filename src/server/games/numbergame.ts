@@ -1,5 +1,5 @@
-import { BaseGame, StateObject } from "../game";
 import { GameCode } from "../GameDirectory";
+import { BaseGame, StateObject } from "../objects/BaseGame";
 
 export type NumberGameState = {
   epicNumber: StateObject<number>
