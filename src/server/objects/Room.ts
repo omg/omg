@@ -57,9 +57,8 @@ export class Room {
   startGame() {
     if (this.inProgress) return;
 
-    this.game = new GameDirectory[this.gameCode].game(this);
     this.inProgress = true;
-    this.game.startGame();
+    this.game = new GameDirectory[this.gameCode].game(this);
   }
 
   endGame() {
