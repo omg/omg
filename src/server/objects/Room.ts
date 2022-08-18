@@ -33,7 +33,7 @@ export class Room {
           x = 15;
           return;
         }
-        console.log('Lobby ' + this.ID + ' is starting in ' + x + ' seconds!');
+        if (x == 15 || x == 5) console.log('Lobby ' + this.ID + ' is starting in ' + x + ' seconds!');
         x--;
       }
     }, 1000);
