@@ -21,7 +21,7 @@ const PORT = 8080;
 
 let connectedPlayers = [];
 
-let defaultRoom = new Room(GameCode.NUMBER_GAME);
+let defaultRoom = new Room(GameCode.DUMMY_GAME);
 
 io.on('connection', (socket) => {
   let player = new Player(socket);
