@@ -1,5 +1,5 @@
 import { Container, Graphics, Sprite } from "pixi.js";
-import { app, connectResizeFunction } from "../app";
+import { app, connectResizeFunction, removeResizeFunction } from "../app";
 import { GameCode, GameDirectory } from "../GameDirectory";
 import { BaseGame } from "./BaseGame";
 import { Player } from "./Player";
@@ -14,6 +14,8 @@ export class Room {
   roomContainer: Container;
   backgroundColorGraphics: Graphics;
   blobSprite: Sprite;
+
+  resizingFunction: () => void;
   
   constructor(ID: string, players: [Player?], gameCode: GameCode) {
     this.ID = ID;
@@ -32,9 +34,10 @@ export class Room {
     this.blobSprite.tint = 0xffe29c;
 
     // Background
-    connectResizeFunction(() => {
+    this.resizingFunction = () => {
       this.resize();
-    });
+    }
+    connectResizeFunction(this.resizingFunction);
   }
 
   resize() {
@@ -67,15 +70,25 @@ export class Room {
   }
 
   startGame() {
+    if (this.game) return;
+
     this.roomContainer.visible = false;
     
     this.game = new GameDirectory[this.gameCode].game(this);
   }
 
   endGame() {
+    if (!this.game) return;
+
     this.roomContainer.visible = true;
     
     if (this.game.cleanup) this.game.cleanup();
     delete this.game;
+  }
+
+  cleanup() {
+    this.endGame();
+    removeResizeFunction(this.resizingFunction);
+    this.roomContainer.destroy({ children: true });
   }
 }

@@ -53,43 +53,37 @@ socket.on('connected', (player: Player) => {
 //-----------------------------------------------------------
 // Lobby stuff
 
-// Eventually change this to be able to be in multiple rooms and be able to be kicked from rooms safely
-let currentRoom: Room;
+let connectedRooms: [Room?] = [];
 
-socket.on('joinRoom', (ID: string, players: [Player], gameCode: GameCode) => {
-  if (currentRoom) {
-    // Can't cleanup the current room! We'll just return for now
-    return;
-  }
+// Handle if the player completely disconnects from the server
 
-  console.log("Joined room " + ID + "!\nPlayers in room:");
+socket.on('connectToRoom', (ID: string, players: [Player], gameCode: GameCode) => {
+  console.log("Connected to room " + ID + "!\nPlayers in room:");
   for (let player of players) console.log(player.ID + " - " + player.username);
 
-  currentRoom = new Room(ID, players, gameCode);
+  connectedRooms.push(new Room(ID, players, gameCode));
 });
 
-socket.on('joinedRoom', (player: Player) => {
-  // TODO: use room ID to know from which room this player has joined
-  currentRoom.addPlayer(player);
+socket.on('joinedRoom', (ID: string, player: Player) => {
+  connectedRooms.find((room) => room.ID == ID).addPlayer(player);
 });
 
-socket.on('leaveRoom', (id: string) => {
-  // TODO
+socket.on('leaveRoom', (ID: string, player: Player) => {
+  let room = connectedRooms.find((room) => room.ID == ID);
+  if (player.ID == myPlayer.ID) {
+    connectedRooms.splice(connectedRooms.indexOf(room), 1);
+    room.cleanup();
+    return;
+  }
+  room.removePlayer(player);
 });
 
-socket.on('leftRoom', (player: Player) => {
-  // TODO: use room ID to know from which room this player has left
-  currentRoom.removePlayer(player);
+socket.on('initGame', (ID: string) => {
+  connectedRooms.find((room) => room.ID == ID).startGame();
 });
 
-socket.on('initGame', () => {
-  // TODO: use room ID to know from which room this game has started
-  currentRoom.startGame();
-});
-
-socket.on('endGame', () => {
-  // TODO: use room ID to know from which room this game has ended
-  currentRoom.endGame();
+socket.on('endGame', (ID: string) => {
+  connectedRooms.find((room) => room.ID == ID).endGame();
 });
 
 /*
