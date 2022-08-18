@@ -58,7 +58,7 @@ export class Room {
   }
 
   removePlayer(player: Player) {
-    let index = this.players.indexOf(player);
+    let index = this.players.findIndex((result: Player) => result.ID == player.ID);
     if (index > -1) {
       this.players.splice(index, 1);
 
