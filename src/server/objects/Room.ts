@@ -26,6 +26,8 @@ export class Room {
 
     player.socket.join(this.ID);
     player.socket.emit('joinRoom', this.ID, this.players, this.gameCode);
+    player.socket.to(this.ID).emit('joinedRoom', player);
+
     console.log("Player joined room " + this.ID + " - " + this.players.length + " in room");
 
     if (this.inProgress) {
@@ -40,7 +42,9 @@ export class Room {
       this.players.splice(index, 1);
 
       player.socket.leave(this.ID);
-      player.socket.emit('leaveRoom', this.ID); // TODO same as above
+      player.socket.emit('leaveRoom', this.ID); // This can be merged with the one below
+      player.socket.to(this.ID).emit('leftRoom', player);
+
       console.log("Player left room " + this.ID + " - " + this.players.length + " in room");
 
       if (this.inProgress) {
