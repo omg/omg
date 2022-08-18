@@ -3,6 +3,7 @@ import { GameDirectory, GameCode } from "../GameDirectory";
 import io from "..";
 import { BaseGame } from "./BaseGame";
 import { Player } from "./Player";
+import { clearInterval } from "timers";
 
 export class Room {
   ID: string;
@@ -12,6 +13,7 @@ export class Room {
   inProgress: boolean;
 
   game?: BaseGame;
+  timer;
   
   constructor(gameCode: GameCode) {
     this.ID = randomUUID();
@@ -19,6 +21,22 @@ export class Room {
 
     this.gameCode = gameCode;
     this.inProgress = false;
+
+    let x = 15;
+    this.timer = setInterval(() => {
+      if (this.inProgress) return;
+      if (this.players.length < GameDirectory[this.gameCode].minPlayers) {
+        x = 15;
+      } else {
+        if (x < 0) {
+          this.startGame();
+          x = 15;
+          return;
+        }
+        console.log('Lobby ' + this.ID + ' is starting in ' + x + ' seconds!');
+        x--;
+      }
+    }, 1000);
   }
 
   addPlayer(player: Player) {
@@ -42,8 +60,8 @@ export class Room {
     if (index > -1) {
       this.players.splice(index, 1);
 
-      player.socket.leave(this.ID);
       io.to(this.ID).emit('leaveRoom', this.ID, player);
+      player.socket.leave(this.ID);
 
       console.log("Player left room " + this.ID + " - " + this.players.length + " in room");
 
@@ -57,6 +75,7 @@ export class Room {
     if (this.inProgress) return;
 
     this.inProgress = true;
+    console.log('Lobby ' + this.ID + ' - game started: ' + GameDirectory[this.gameCode].name + '.');
 
     io.to(this.ID).emit('initGame', this.ID);
     this.game = new GameDirectory[this.gameCode].game(this);
@@ -65,9 +84,16 @@ export class Room {
   endGame() {
     if (!this.inProgress) return;
 
+    console.log('Lobby ' + this.ID + ' - game ended.');
+
     io.to(this.ID).emit('endGame', this.ID);
     if (this.game.cleanup) this.game.cleanup();
     delete this.game;
     this.inProgress = false;
+  }
+
+  cleanup() {
+    // TODO end the game and kick everyone
+    clearInterval(this.timer);
   }
 }
