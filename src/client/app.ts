@@ -53,7 +53,7 @@ socket.on('connected', (player) => {
 // Lobby stuff
 
 // Eventually change this to be able to be in multiple rooms and be able to be kicked from rooms safely
-let currentRoom;
+let currentRoom: Room;
 
 socket.on('joinRoom', (ID, players, gameCode) => {
   if (currentRoom) {
@@ -72,6 +72,13 @@ socket.on('joinRoom', (ID, players, gameCode) => {
 
   currentRoom = new Room(ID, players, gameCode);
 });
+
+// problem: can't just CREATE the player - removePlayer won't work like that! uh oh
+// socket.on('joinedRoom', (player) => {
+//   player = new Player(player.ID, player.username);
+
+//   currentRoom.removePlayer(player);
+// });
 
 /*
   Start by having a "waiting for lobby" text on the screen
