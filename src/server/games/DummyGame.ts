@@ -1,15 +1,20 @@
-import { GameCode } from "../GameDirectory";
 import { BaseGame } from "../objects/BaseGame";
 
 export type DummyGameState = {}
 
 export class DummyGame extends BaseGame {
-  gameCode = GameCode.DUMMY_GAME;
-
   gameState: DummyGameState;
 
+  timer;
+
   startGame() {
-    
+    this.timer = setTimeout(() => {
+      this.room.endGame();
+    }, 5000);
+  }
+
+  cleanup() {
+    clearTimeout(this.timer);
   }
 }
 

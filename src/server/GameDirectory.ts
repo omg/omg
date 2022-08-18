@@ -19,7 +19,7 @@ export const GameDirectory: {[index: string]: GameSettings} = {
     name: "Dummy Game",
     game: DummyGame,
 
-    minPlayers: 1
+    minPlayers: 2
   },
 
   [GameCode.NUMBER_GAME]: {
