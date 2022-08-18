@@ -83,6 +83,7 @@ export class Room {
     this.roomContainer.visible = true;
     
     if (this.game.cleanup) this.game.cleanup();
+    this.game.gameContainer.destroy({ children: true });
     delete this.game;
   }
 
