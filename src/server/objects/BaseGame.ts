@@ -1,18 +1,13 @@
-import io from '..';
-import { GameCode } from '../GameDirectory';
 import { Player } from './Player';
 import { Room } from './Room';
 
 export class BaseGame {
-  gameCode: GameCode;
-
   gameState: GameState;
   room: Room;
 
   constructor(room: Room) {
     this.room = room;
 
-    io.to(room.ID).emit('initGame', this.gameCode);
     // initializing the game on the client without any information results in a weird limbo state on the client
 
     this.startGame();
