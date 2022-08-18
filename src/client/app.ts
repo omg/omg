@@ -69,7 +69,7 @@ socket.on('joinRoom', (ID: string, players: [Player], gameCode: GameCode) => {
 });
 
 socket.on('joinedRoom', (player: Player) => {
-  // TODO: use room ID to know from which room this player has left
+  // TODO: use room ID to know from which room this player has joined
   currentRoom.addPlayer(player);
 });
 
@@ -82,12 +82,14 @@ socket.on('leftRoom', (player: Player) => {
   currentRoom.removePlayer(player);
 });
 
-socket.on('initGame', (gameCode: GameCode) => {
-  // TODO
+socket.on('initGame', () => {
+  // TODO: use room ID to know from which room this game has started
+  currentRoom.startGame();
 });
 
 socket.on('endGame', () => {
-  // TODO
+  // TODO: use room ID to know from which room this game has ended
+  currentRoom.endGame();
 });
 
 /*

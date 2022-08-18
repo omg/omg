@@ -1,5 +1,6 @@
 import { randomUUID } from "crypto";
 import { GameDirectory, GameCode } from "../GameDirectory";
+import io from "../server";
 import { BaseGame } from "./BaseGame";
 import { Player } from "./Player";
 
@@ -31,7 +32,7 @@ export class Room {
     console.log("Player joined room " + this.ID + " - " + this.players.length + " in room");
 
     if (this.inProgress) {
-      player.socket.emit('initGame', this.gameCode);
+      player.socket.emit('initGame');
       if (this.game.playerJoined) this.game.playerJoined(player);
     }
   }
@@ -48,7 +49,7 @@ export class Room {
       console.log("Player left room " + this.ID + " - " + this.players.length + " in room");
 
       if (this.inProgress) {
-        player.socket.emit('endGame');
+        //player.socket.emit('endGame');
         if (this.game.playerQuit) this.game.playerQuit(player);
       }
     }
@@ -58,12 +59,15 @@ export class Room {
     if (this.inProgress) return;
 
     this.inProgress = true;
+
+    io.to(this.ID).emit('initGame');
     this.game = new GameDirectory[this.gameCode].game(this);
   }
 
   endGame() {
     if (!this.inProgress) return;
 
+    io.to(this.ID).emit('endGame');
     if (this.game.cleanup) this.game.cleanup();
     delete this.game;
     this.inProgress = false;

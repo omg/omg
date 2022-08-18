@@ -1,6 +1,6 @@
 import { Container, Graphics, Sprite } from "pixi.js";
 import { app, connectResizeFunction } from "../app";
-import { GameCode } from "../GameDirectory";
+import { GameCode, GameDirectory } from "../GameDirectory";
 import { BaseGame } from "./BaseGame";
 import { Player } from "./Player";
 
@@ -67,10 +67,15 @@ export class Room {
   }
 
   startGame() {
-    // TODO
+    this.roomContainer.visible = false;
+    
+    this.game = new GameDirectory[this.gameCode].game(this);
   }
 
   endGame() {
-    // TODO
+    this.roomContainer.visible = true;
+    
+    if (this.game.cleanup) this.game.cleanup();
+    delete this.game;
   }
 }
