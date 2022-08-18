@@ -32,7 +32,9 @@ export class Room {
     this.blobSprite.tint = 0xffe29c;
 
     // Background
-    connectResizeFunction(this.resize);
+    connectResizeFunction(() => {
+      this.resize();
+    });
   }
 
   resize() {
