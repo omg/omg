@@ -1,7 +1,7 @@
+import io from '..';
 import { GameCode } from '../GameDirectory';
 import { Player } from './Player';
 import { Room } from './Room';
-import io from '../server';
 
 export class BaseGame {
   gameCode: GameCode;

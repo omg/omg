@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import { GameDirectory, GameCode } from "../GameDirectory";
-import io from "../server";
+import io from "..";
 import { BaseGame } from "./BaseGame";
 import { Player } from "./Player";
 
