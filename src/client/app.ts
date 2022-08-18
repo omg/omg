@@ -57,11 +57,11 @@ let connectedRooms: [Room?] = [];
 
 // Handle if the player completely disconnects from the server
 
-socket.on('connectToRoom', (ID: string, players: [Player], gameCode: GameCode) => {
+socket.on('connectToRoom', (ID: string, players: [Player], gameCode: string) => {
   console.log("Connected to room " + ID + "!\nPlayers in room:");
   for (let player of players) console.log(player.ID + " - " + player.username);
 
-  connectedRooms.push(new Room(ID, players, gameCode));
+  connectedRooms.push(new Room(ID, players, <GameCode> gameCode));
 });
 
 socket.on('joinedRoom', (ID: string, player: Player) => {
