@@ -6,7 +6,7 @@ import { Player } from "./Player";
 
 export class Room {
   ID: string;
-  players: [Player?];
+  players: Player[];
 
   gameCode: GameCode;
   game?: BaseGame;
@@ -17,7 +17,7 @@ export class Room {
 
   resizingFunction: () => void;
   
-  constructor(ID: string, players: [Player?], gameCode: GameCode) {
+  constructor(ID: string, players: Player[], gameCode: GameCode) {
     this.ID = ID;
     this.players = players;
     this.gameCode = gameCode;
