@@ -9,9 +9,9 @@
     "noEmitOnError": false,
     "skipLibCheck": true,
     "moduleResolution": "node",
-    "alwaysStrict": true,
-    "noUnusedLocals": true,
-    "noImplicitAny": true,
+    "alwaysStrict": false,
+    "noUnusedLocals": false,
+    "noImplicitAny": false,
     "sourceMap": true,
     "target": "es5",
     "outDir": "dist/server"
