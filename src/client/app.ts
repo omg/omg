@@ -44,7 +44,7 @@ connectResizeFunction(() => {
 //-----------------------------------------------------------
 // Connections
 
-let myPlayer = null;
+let myPlayer: Player;
 
 socket.on('connected', (player: Player) => {
   myPlayer = player;
@@ -53,7 +53,7 @@ socket.on('connected', (player: Player) => {
 //-----------------------------------------------------------
 // Lobby stuff
 
-let connectedRooms: [Room?] = [];
+let connectedRooms: Room[] = [];
 
 // Handle if the player completely disconnects from the server
 
@@ -65,11 +65,14 @@ socket.on('connectToRoom', (ID: string, players: [Player], gameCode: string) => 
 });
 
 socket.on('joinedRoom', (ID: string, player: Player) => {
-  connectedRooms.find((room) => room.ID == ID).addPlayer(player);
+  let room = connectedRooms.find((room) => room.ID == ID);
+  if (room) room.addPlayer(player);
 });
 
 socket.on('leaveRoom', (ID: string, player: Player) => {
   let room = connectedRooms.find((room) => room.ID == ID);
+  if (!room) return;
+
   if (player.ID == myPlayer.ID) {
     connectedRooms.splice(connectedRooms.indexOf(room), 1);
     room.cleanup();
@@ -79,11 +82,13 @@ socket.on('leaveRoom', (ID: string, player: Player) => {
 });
 
 socket.on('initGame', (ID: string) => {
-  connectedRooms.find((room) => room.ID == ID).startGame();
+  let room = connectedRooms.find((room) => room.ID == ID);
+  if (room) room.startGame();
 });
 
 socket.on('endGame', (ID: string) => {
-  connectedRooms.find((room) => room.ID == ID).endGame();
+  let room = connectedRooms.find((room) => room.ID == ID);
+  if (room) room.endGame();
 });
 
 export {
