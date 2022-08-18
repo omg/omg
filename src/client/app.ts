@@ -62,24 +62,33 @@ socket.on('joinRoom', (ID: string, players: [Player], gameCode: GameCode) => {
     return;
   }
 
-  // players = players.map((player) => {
-  //   return new Player(player.ID, player.username);
-  // });
-
   console.log("Joined room " + ID + "!\nPlayers in room:");
-  for (let player of players) {
-    console.log(player.ID + " - " + player.username);
-  }
+  for (let player of players) console.log(player.ID + " - " + player.username);
 
   currentRoom = new Room(ID, players, gameCode);
 });
 
-// problem: can't just CREATE the player - removePlayer won't work like that! uh oh
-// socket.on('joinedRoom', (player) => {
-//   player = new Player(player.ID, player.username);
+socket.on('joinedRoom', (player: Player) => {
+  // TODO: use room ID to know from which room this player has left
+  currentRoom.addPlayer(player);
+});
 
-//   currentRoom.removePlayer(player);
-// });
+socket.on('leaveRoom', (id: string) => {
+  // TODO
+});
+
+socket.on('leftRoom', (player: Player) => {
+  // TODO: use room ID to know from which room this player has left
+  currentRoom.removePlayer(player);
+});
+
+socket.on('initGame', (gameCode: GameCode) => {
+  // TODO
+});
+
+socket.on('endGame', () => {
+  // TODO
+});
 
 /*
   Start by having a "waiting for lobby" text on the screen
