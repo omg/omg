@@ -20,16 +20,12 @@ export class Room {
     this.inProgress = false;
   }
 
-  getReducedPlayers() {
-    return this.players.map((player: Player) => player.reduce());
-  }
-
   addPlayer(player: Player) {
     if (this.players.includes(player)) return;
     this.players.push(player);
 
     player.socket.join(this.ID);
-    player.socket.emit('joinRoom', this.ID); // TODO: tell the user who else is in the room and update it + chat stuff ?
+    player.socket.emit('joinRoom', this.ID, this.players, this.gameCode);
     console.log("Player joined room " + this.ID + " - " + this.players.length + " in room");
 
     if (this.inProgress) {

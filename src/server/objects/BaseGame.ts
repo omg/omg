@@ -52,7 +52,7 @@ export class BaseGame {
         mutedObj[key] = this.muteItem(player, item[key]);
       }
     }
-    if (item instanceof Player) return item.reduce();
+    //if (item instanceof Player) return item.reduce();
     return item;
   }
 

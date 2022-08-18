@@ -28,7 +28,8 @@ io.on('connection', (socket) => {
   connectedPlayers.push(player);
 
   console.log('Player connected to Boba server - ' + connectedPlayers.length + ' online.');
-
+  
+  socket.emit('connected', player);
   defaultRoom.addPlayer(player);
   
   socket.on('disconnect', () => {

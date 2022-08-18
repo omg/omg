@@ -15,7 +15,7 @@ export class Player {
     currentPlayerID++;
   }
 
-  reduce() {
+  toJSON() {
     return {
       ID: this.ID,
       username: this.username

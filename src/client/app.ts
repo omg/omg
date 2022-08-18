@@ -1,4 +1,7 @@
 import { Application, Container } from 'pixi.js';
+import { Player } from './objects/Player';
+import { Room } from './objects/Room';
+import socket from './utils/socket';
 //import anime from 'animejs';
 
 //-----------------------------------------------------------
@@ -29,21 +32,45 @@ function removeResizeFunction(fx) {
 let gameContainer = new Container();
 app.stage.addChild(gameContainer);
 
-// Background
-
-// Console logging userID
-// socket.on('tellID', (userID) => {
-//   console.log(userID);
-// });
-
-//
-
 //-----------------------------------------------------------
 // Resize stuffs
 
 // Listen for window resize events
 connectResizeFunction(() => {
   app.renderer.resize(window.innerWidth, window.innerHeight);
+});
+
+//-----------------------------------------------------------
+// Connections
+
+let myPlayer = null;
+
+socket.on('connected', (player) => {
+  myPlayer = new Player(player.ID, player.username);
+});
+
+//-----------------------------------------------------------
+// Lobby stuff
+
+// Eventually change this to be able to be in multiple rooms and be able to be kicked from rooms safely
+let currentRoom;
+
+socket.on('joinRoom', (ID, players, gameCode) => {
+  if (currentRoom) {
+    // Can't cleanup the current room! We'll just return for now
+    return;
+  }
+
+  players = players.map((player) => {
+    return new Player(player.ID, player.username);
+  });
+
+  console.log("Joined room " + ID + "!\nPlayers in room:");
+  for (let player of players) {
+    console.log(player.ID + " - " + player.username);
+  }
+
+  currentRoom = new Room(ID, players, gameCode);
 });
 
 /*
