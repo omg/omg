@@ -10,7 +10,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 // old npm script "build:release": "webpack --optimize-minimize --config webpack.prod.js",
 
 module.exports = {
-  entry: './src/client/index.ts',
+  entry: './src/client/index.js',
   output: {
     filename: 'omg.js',
     path: path.resolve(__dirname, 'public/dist'),
