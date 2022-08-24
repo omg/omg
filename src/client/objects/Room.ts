@@ -1,4 +1,4 @@
-import { Container, Graphics, Sprite } from "pixi.js";
+import { Container, Graphics, Sprite, Text } from "pixi.js";
 import { app, connectResizeFunction, removeResizeFunction } from "../app";
 import { GameCode, GameDirectory } from "../GameDirectory";
 import { BaseGame } from "./BaseGame";
@@ -16,6 +16,7 @@ export class Room {
   blobSprite: Sprite;
 
   resizingFunction: () => void;
+  testFunction: () => void;
   
   constructor(ID: string, players: Player[], gameCode: GameCode) {
     this.ID = ID;
@@ -32,6 +33,25 @@ export class Room {
     this.blobSprite = Sprite.from('./assets/letters/whiteBlob.png');
     this.backgroundColorGraphics.addChild(this.blobSprite);
     this.blobSprite.tint = 0xffe29c;
+
+    let test = new Text('testing gotham black', {
+      fontFamily: 'Gotham Black',
+      fontSize: 33,
+      fill: 0x000000,
+      align: 'center'
+    });
+    this.roomContainer.addChild(test);
+    
+    this.testFunction = () => {
+      let test2 = new Text('testing gotham black', {
+        fontFamily: 'Gotham Black',
+        fontSize: 33,
+        fill: 0x000000,
+        align: 'center'
+      });
+      this.roomContainer.addChild(test2);
+    }
+    setTimeout(this.testFunction, 2000);
 
     // Background
     this.resizingFunction = () => {
