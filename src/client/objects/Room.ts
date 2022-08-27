@@ -1,4 +1,4 @@
-import { Container, Graphics, Sprite } from "pixi.js";
+import { Container, Graphics, Sprite, Text } from "pixi.js";
 import { app, connectResizeFunction, removeResizeFunction } from "../app";
 import { GameCode, GameDirectory } from "../GameDirectory";
 import { BaseGame } from "./BaseGame";

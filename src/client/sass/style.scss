@@ -1,21 +1,20 @@
 $primary-color: #01a6ff;
 
-
-
-
-
-
-
-
-
-
-
-
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,900&display=swap');
 
 @font-face {
-  font-family: 'Gotham Bold';
-  src: url(https://fontsfree.net//wp-content/fonts/basic/FontsFree-Net-Gotham-Bold.ttf);
+  font-family: 'Gotham Black';
+  src: url('gotham-black.woff') format('woff');
 }
+
+
+
+
+
+
+
+
+
 
 .chat {
   background: #2d2d2d;
@@ -96,6 +95,7 @@ $primary-color: #01a6ff;
   text-overflow: ellipsis;
   overflow: hidden;
 }
+
 
 
 
