@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "animejs": "^3.2.1",
+    "file-loader": "^6.2.0",
     "fontfaceobserver": "^2.3.0",
     "pixi.js": "^6.3.2",
     "socket.io": "^4.5.1",
