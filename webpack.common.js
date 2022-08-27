@@ -14,7 +14,7 @@ module.exports = {
   output: {
     filename: 'omg.js',
     path: path.resolve(__dirname, 'public/dist'),
-    publicPath: 'dist'
+    publicPath: 'dist/'
   },
   plugins: [
     new HtmlWebpackPlugin({
@@ -38,17 +38,9 @@ module.exports = {
         use: ['style-loader', 'css-loader', 'sass-loader'],
       },
       {
-        test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-              name: '[name].[ext]',
-              outputPath: 'fonts/'
-            }
-          }
-        ]
-      }
+        test: /\.woff2?$/i,
+        type: 'asset/resource'
+      }, 
     ],
   },
   resolve: {
