@@ -1,6 +1,6 @@
 import { Container } from "pixi.js";
 import { Game } from "../objects/Game";
-import { GameHandler } from "../objects/GameHandler";
+import { BaseGameHandler } from "../gamehandlers/BaseGameHandler";
 
 export type DummyGameState = {}
 
@@ -16,7 +16,7 @@ export class DummyGame extends Game {
 
   gameState: DummyGameState;
   
-  gameHandler: GameHandler;
+  gameHandler: BaseGameHandler;
   gameContainer: Container;
   
   timer;

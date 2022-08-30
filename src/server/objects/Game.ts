@@ -1,11 +1,11 @@
 import { Container } from "pixi.js";
-import { GameHandler } from "../../server/objects/GameHandler";
+import { BaseGameHandler } from "../gamehandlers/BaseGameHandler";
 import { Player } from "./Player";
 
 export class Game {
   gameState: GameState;
   
-  gameHandler: GameHandler; // ?
+  gameHandler: BaseGameHandler; // ?
   gameContainer: Container;
 
   start?(): void;

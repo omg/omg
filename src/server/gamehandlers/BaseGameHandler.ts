@@ -1,6 +1,7 @@
-import { GameSettings } from "../../client/objects/GameSettings";
+import { GameSettings } from "../objects/GameSettings";
 
-export interface GameHandler {
+
+export interface BaseGameHandler {
   gameSettings: GameSettings;
   inProgress: boolean;
 

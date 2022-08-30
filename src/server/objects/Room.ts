@@ -4,7 +4,7 @@ import io from "..";
 import { LegacyBaseGame } from "./LegacyBaseGame";
 import { Player } from "./Player";
 import { clearInterval } from "timers";
-import { GameHandler, StartResult } from "./GameHandler";
+import { BaseGameHandler, StartResult } from "../gamehandlers/BaseGameHandler";
 
 export class Room {
   ID: string;
@@ -16,7 +16,7 @@ export class Room {
   //game?: LegacyBaseGame;
   //timer;
 
-  gameHandler: GameHandler; // Do rooms REQUIRE a game handler? What if it's just a chatroom or something?
+  gameHandler: BaseGameHandler; // Do rooms REQUIRE a game handler? What if it's just a chatroom or something?
   
   constructor() { //gameCode: GameCode
     this.ID = randomUUID();

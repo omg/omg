@@ -1,9 +1,9 @@
-import { GameHandler, StartResult } from "../objects/GameHandler";
+import { BaseGameHandler, StartResult } from "./BaseGameHandler";
 import { GameSettings } from "../objects/GameSettings";
 
 // TODO: dedicated, idle, and arcade-type rooms
 
-export class DedicatedGameHandler implements GameHandler {
+export class DedicatedGameHandler implements BaseGameHandler {
   gameSettings: GameSettings;
   inProgress: boolean = false;
 
