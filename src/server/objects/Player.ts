@@ -1,9 +1,9 @@
 import { Socket } from "socket.io";
-import { Winnable } from "./Winnable";
+import { Entity } from "./Winnable";
 
 let currentPlayerID = 1;
 
-export class Player implements Winnable {
+export class Player implements Entity {
   ID: number;
   name: string;
   color: number;

@@ -1,4 +1,4 @@
-export interface Winnable {
+export interface Entity {
   name: string;
   color: number;
 }
