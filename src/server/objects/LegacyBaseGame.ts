@@ -1,7 +1,7 @@
 import { Player } from './Player';
 import { Room } from './Room';
 
-export class BaseGame {
+export class LegacyBaseGame {
   gameState: GameState;
   room: Room;
 
@@ -54,13 +54,4 @@ export class BaseGame {
   getState(player: Player) {
     return this.muteItem(player, this.gameState);
   }
-}
-
-export type GameState = {
-  [key: string]: any
-}
-
-export type StateObject<T> = {
-  value: T;
-  visibleTo: [Player?]; // add teams later
 }

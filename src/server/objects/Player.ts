@@ -1,16 +1,22 @@
 import { Socket } from "socket.io";
+import { Winnable } from "./Winnable";
 
 let currentPlayerID = 1;
 
-export class Player {
+export class Player implements Winnable {
   ID: number;
-  username: string;
+  name: string;
+  color: number;
   socket: Socket;
 
   constructor(socket: Socket) {
     this.ID = currentPlayerID;
-    this.username = "Lame Guest";
+    this.name = "Lame Guest";
     this.socket = socket;
+
+    // use HSV instead so that it doesn't generate
+    // shitty colors
+    this.color = Math.random() * 0xffffff;
 
     currentPlayerID++;
   }
@@ -18,7 +24,7 @@ export class Player {
   toJSON() {
     return {
       ID: this.ID,
-      username: this.username
+      name: this.name
     }
   }
 }

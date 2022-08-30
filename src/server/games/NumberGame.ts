@@ -1,10 +1,10 @@
-import { BaseGame, StateObject } from "../objects/BaseGame";
+import { LegacyBaseGame, StateObject } from "../objects/LegacyBaseGame";
 
 export type NumberGameState = {
   epicNumber: StateObject<number>
 }
 
-export class NumberGame extends BaseGame {
+export class NumberGame extends LegacyBaseGame {
   gameState: NumberGameState;
 
   startGame() {
