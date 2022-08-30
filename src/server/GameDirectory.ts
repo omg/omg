@@ -1,7 +1,7 @@
 import { DummyGame } from "./games/DummyGame"
 import { Game } from "./objects/Game";
 import { Player } from "./objects/Player";
-import { Entity } from "./objects/Winnable";
+import { Entity } from "./objects/Entity";
 
 // need game name
 // want gamesettings to be a thing sent to clients from somewhere rooms are viewed
@@ -14,7 +14,9 @@ export class Team implements Entity {
   teamChat: boolean;
   players: Player[];
 
-  
+  getPlayers(): Player[] {
+    return this.players;
+  }
   // color
   // teamChat: boolean
   // 

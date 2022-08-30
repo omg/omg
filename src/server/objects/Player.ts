@@ -1,5 +1,5 @@
 import { Socket } from "socket.io";
-import { Entity } from "./Winnable";
+import { Entity } from "./Entity";
 
 let currentPlayerID = 1;
 
@@ -19,6 +19,10 @@ export class Player implements Entity {
     this.color = Math.random() * 0xffffff;
 
     currentPlayerID++;
+  }
+
+  getPlayers(): Player[] {
+    return [this];
   }
 
   toJSON() {
