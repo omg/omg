@@ -1,4 +1,4 @@
-import { GameCode } from "./GameDirectory";
+import { GameCode, GameDirectory } from "./GameDirectory";
 import { Player } from "./objects/Player";
 import { Room } from "./objects/Room";
 
@@ -21,7 +21,7 @@ const PORT = 8080;
 
 let connectedPlayers = [];
 
-let defaultRoom = new Room(GameCode.DUMMY_GAME);
+let defaultRoom = new Room();
 
 io.on('connection', (socket) => {
   let player = new Player(socket);
