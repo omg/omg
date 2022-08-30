@@ -1,10 +1,10 @@
 import { DummyGame } from "./games/DummyGame"
-import { Game } from "./objects/Game";
+import { BaseGame } from "./games/BaseGame";
 import { Team } from "./objects/Team";
 
 export type DirectoryInformation = {
   name: string;
-  game: typeof Game;
+  game: typeof BaseGame;
 
   minPlayers: number;
   getDefaultTeams(): Team[];

@@ -1,10 +1,10 @@
 import { Container } from "pixi.js";
-import { Game } from "../objects/Game";
+import { BaseGame } from "./BaseGame";
 import { BaseGameHandler } from "../gamehandlers/BaseGameHandler";
 
 export type DummyGameState = {}
 
-export class DummyGame extends Game {
+export class DummyGame extends BaseGame {
   // TODO: WTF!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   // TODO: WTF!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   // TODO: WTF!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

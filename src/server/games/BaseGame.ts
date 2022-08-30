@@ -1,8 +1,8 @@
 import { Container } from "pixi.js";
 import { BaseGameHandler } from "../gamehandlers/BaseGameHandler";
-import { Player } from "./Player";
+import { Player } from "../objects/Player";
 
-export class Game {
+export class BaseGame {
   gameState: GameState;
   
   gameHandler: BaseGameHandler; // ?

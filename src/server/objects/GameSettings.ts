@@ -1,4 +1,4 @@
-import { Game } from "./Game";
+import { BaseGame } from "../games/BaseGame";
 
 export type GameSettings = {
   //game: typeof Game;
