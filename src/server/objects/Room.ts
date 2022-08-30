@@ -56,8 +56,8 @@ export class Room {
     this.players.push(player);
 
     player.socket.join(this.ID);
-    player.socket.emit('room/connect', this.getRoomInfo());
-    player.socket.to(this.ID).emit(`${this.ID}/join`, this.getRoomInfo()); //TODO is this correct?
+    player.socket.emit('room:connect', this.getRoomInfo());
+    player.socket.to(this.ID).emit(`${this.ID}:join`, this.getRoomInfo()); //TODO is this correct?
 
     console.log("Player joined room " + this.ID + " - " + this.players.length + " in room");
 
@@ -73,8 +73,8 @@ export class Room {
       this.players.splice(index, 1);
 
       player.socket.leave(this.ID);
-      player.socket.emit('room/leave', this.ID);
-      io.to(this.ID).emit(`${this.ID}/leave`, this.ID, player);
+      player.socket.emit('room:leave', this.ID);
+      io.to(this.ID).emit(`${this.ID}:leave`, this.ID, player);
 
       console.log("Player left room " + this.ID + " - " + this.players.length + " in room");
 
