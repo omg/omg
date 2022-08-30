@@ -2,9 +2,9 @@ import { randomUUID } from "crypto";
 import { GameDirectory, GameCode } from "../GameDirectory";
 import io from "..";
 import { LegacyBaseGame } from "./LegacyBaseGame";
-import { Player } from "./Player";
 import { clearInterval } from "timers";
 import { BaseGameHandler, StartResult } from "../gamehandlers/BaseGameHandler";
+import { Player } from "../entities/Player";
 
 export class Room {
   ID: string;

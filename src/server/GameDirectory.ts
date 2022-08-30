@@ -1,6 +1,6 @@
 import { DummyGame } from "./games/DummyGame"
 import { BaseGame } from "./games/BaseGame";
-import { Team } from "./objects/Team";
+import { Team } from "./entities/Team";
 
 export type DirectoryInformation = {
   name: string;

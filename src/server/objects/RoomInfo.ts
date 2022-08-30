@@ -1,7 +1,7 @@
 // just do the Room getJSON() method instead
 
+import { Player } from "../entities/Player";
 import { GameInfo } from "./GameInfo";
-import { Player } from "./Player";
 
 export type RoomInfo = {
   players: Player[];

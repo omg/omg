@@ -1,5 +1,5 @@
+import { Player } from "./entities/Player";
 import { GameCode, GameDirectory } from "./GameDirectory";
-import { Player } from "./objects/Player";
 import { Room } from "./objects/Room";
 
 const express = require("express");
