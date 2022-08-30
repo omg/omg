@@ -1,49 +1,26 @@
 import { DummyGame } from "./games/DummyGame"
 import { Game } from "./objects/Game";
-import { Player } from "./objects/Player";
-import { Entity } from "./objects/Entity";
-
-// need game name
-// want gamesettings to be a thing sent to clients from somewhere rooms are viewed
-// therefore the Game variable and "teamBalancing" is useless information
-// how do we solve this separation problem?
-
-export class Team implements Entity {
-  name: string;
-  color: number;
-  teamChat: boolean;
-  players: Player[];
-
-  getPlayers(): Player[] {
-    return this.players;
-  }
-  // color
-  // teamChat: boolean
-  // 
-  // private LanguageMod name;
-  // private ChatColor teamColor;
-  // private boolean teamChat;
-  // private List<Player> players;
-}
-
-export type TeamInfo = {
-  teamBalancing: boolean;
-
-  teams: Team[];
-}
+import { Team } from "./objects/Team";
 
 export type DirectoryInformation = {
+  name: string;
   game: typeof Game;
 
   minPlayers: number;
-  
+  getDefaultTeams(): Team[];
 }
 
 export type GameCode = typeof GameDirectory[keyof typeof GameDirectory];
 export const GameDirectory: {[name: string]: DirectoryInformation} = {
-  ["DummyGame"]: {
-    game: DummyGame,
 
-    minPlayers: 2
+  DummyGame: {
+    name: "Dummy Game",
+    game: DummyGame,
+    
+    minPlayers: 2,
+    getDefaultTeams() {
+      return [];
+    },
   },
+
 } as const;
