@@ -1,18 +1,10 @@
 import { DummyGame } from "./games/DummyGame"
 import { BaseGame } from "./games/BaseGame";
 import { Team } from "./entities/Team";
+import { GameSettings } from "./objects/GameSettings";
 
-export type DirectoryInformation = {
-  name: string;
-  game: typeof BaseGame;
-
-  minPlayers: number;
-  getDefaultTeams(): Team[];
-}
-
-export type GameCode = typeof GameDirectory[keyof typeof GameDirectory];
-export const GameDirectory: {[name: string]: DirectoryInformation} = {
-
+const DIRECTORY = {
+  
   DummyGame: {
     name: "Dummy Game",
     game: DummyGame,
@@ -22,5 +14,20 @@ export const GameDirectory: {[name: string]: DirectoryInformation} = {
       return [];
     },
   },
-
+  
 } as const;
+
+export type DirectoryInformation = {
+  name: string;
+  game: typeof BaseGame;
+
+  minPlayers: number;
+  getDefaultTeams(): Team[];
+}
+
+export function createGameSettings(game: DirectoryInformation) {
+  return new GameSettings(game.minPlayers, game.getDefaultTeams());
+}
+
+export type GameCode = keyof typeof DIRECTORY;
+export const GameDirectory: {[name: string]: DirectoryInformation} = DIRECTORY;
