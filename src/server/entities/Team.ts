@@ -17,4 +17,8 @@ export class Team implements Entity {
   getPlayers(): Player[] {
     return this.players;
   }
+
+  hasPlayer(player: Player) {
+    return this.players.includes(player);
+  }
 }
