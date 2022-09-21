@@ -12,9 +12,11 @@ export class DedicatedGameHandler implements BaseGameHandler {
   gameCode: GameCode;
   game?: BaseGame;
 
+  timer;
+
   constructor(gameCode: GameCode) {
     this.gameCode = gameCode;
-    this.gameSettings = createGameSettings(GameDirectory[gameCode])
+    this.gameSettings = createGameSettings(GameDirectory[gameCode]);
 
     // TODO is there more to do?
   }
