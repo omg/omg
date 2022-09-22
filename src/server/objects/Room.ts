@@ -12,6 +12,8 @@ import { DedicatedGameHandler } from "../gamehandlers/DedicatedGameHandler";
 // If needed, there can be a toggle for chat in Lobby
 
 export class Lobby { // probably should do a HostedGameHandler or something
+  lobbyType: string = "lobby"; // this might be a weird way to do object detection
+
   ID: string;
   players: [Player?];
   
@@ -22,29 +24,27 @@ export class Lobby { // probably should do a HostedGameHandler or something
 
   getLobbyInfo() {
     return {
-      type: "lobby",
-
       ID: this.ID,
       players: this.players
     }
   }
 
   // TODO some of these methods should be in BaseGameHandler
-  emit(player: Player) {
-    return player.socket.emit('game:')
-  }
+  // emit(player: Player) {
+  //   return player.socket.emit('game:')
+  // }
 
   addPlayer(player: Player) {
     if (this.players.includes(player)) return;
     this.players.push(player);
 
     player.socket.join(this.ID);
-    player.socket.emit('lobby:connect', this.getLobbyInfo());
-    player.socket.to(this.ID).emit(`${this.ID}:join`, this.getLobbyInfo()); //TODO is this correct?
+    player.socket.emit('lobby:connect', this.lobbyType, this.getLobbyInfo());
+    player.socket.to(this.ID).emit(`${this.ID}:join`, player); //TODO is this correct?
 
     console.log("Player joined lobby " + this.ID + " - " + this.players.length + " in lobby");
 
-    // get an onPlayerAdded method by extending an Emitter and have BaseGameHandler listen for it
+    // get an onPlayerJoin method by extending an Emitter and have BaseGameHandler listen for it
     
     // if (this.inProgress) {
     //   player.socket.emit(`${this.ID}:init`);
@@ -66,8 +66,10 @@ export class Lobby { // probably should do a HostedGameHandler or something
 
       console.log("Player left lobby " + this.ID + " - " + this.players.length + " in lobby");
 
+      // get an onPlayerLeave method by extending an Emitter and have BaseGameHandler listen for it
+
       // if (this.inProgress) {
-      //   if (this.game.playerQuit) this.game.playerQuit(player);
+      //   if (this.game.playerLeft) this.game.playerLeft(player);
       // }
     }
   }
@@ -101,6 +103,6 @@ export class Lobby { // probably should do a HostedGameHandler or something
   // }
   
   cleanup() {
-    
+    for (let player of this.players) this.removePlayer(player);
   }
 }
