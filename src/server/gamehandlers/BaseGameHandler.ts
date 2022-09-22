@@ -1,15 +1,18 @@
-import { GameCode } from "../GameDirectory";
 import { BaseGame } from "../games/BaseGame";
 import { GameSettings } from "../objects/GameSettings";
-import { Lobby } from "../objects/Room";
+import { Lobby } from "../objects/Lobby";
+import { EntityData } from "../objects/EntityData";
 
 // could be a class that demonstrates idle - so other classes call super() on this
 
 export class BaseGameHandler extends Lobby {
+  lobbyType: string = "baselobby";
+
   gameSettings: GameSettings;
+  teamSettings: EntityData; // this is teams + "playerinfo"
+
   inProgress: boolean = false;
   
-  gameCode: GameCode;
   game?: BaseGame;
 
   constructor() {
@@ -18,22 +21,27 @@ export class BaseGameHandler extends Lobby {
 
   getRoomInfo() {
     return {
-      type: "game",
-
       ID: this.ID,
       players: this.players,
 
-      gameCode: this.gameCode
+      gameSettings: this.gameSettings,
+      inProgress: this.inProgress
     }
   }
 
   // TODO: need to know when the teams change so this can be updated in the GameHandler as teams are part of the GameHandler - not the BaseGame
 
-  startGame(): StartResult;
+  startGame(): StartResult {
+    return StartResult.GAMEHANDLER_REFUSED;
+  };
+
   // getCommands(): Command[];
   // scoreboardRequestEvent() from Crashgrid
-  endGame(): void; // Should maybe make an event?
-  getStatus(): string;
+  endGame(): void {} // Should maybe make an event?
+
+  getStatus(): string {
+    return "Lobby is idle.";
+  }
 }
 
 export enum StartResult {
