@@ -2,10 +2,11 @@ import { BaseGameHandler, StartResult } from "./BaseGameHandler";
 import { GameSettings } from "../objects/GameSettings";
 import { createGameSettings, GameCode, GameDirectory } from "../GameDirectory";
 import { BaseGame } from "../games/BaseGame";
+import { Room } from "../objects/Room";
 
 // TODO: dedicated, idle, and arcade-type rooms
 
-export class DedicatedGameHandler implements BaseGameHandler {
+export class DedicatedGameHandler extends BaseGameHandler {
   gameSettings: GameSettings;
   inProgress: boolean = false;
 
@@ -15,11 +16,26 @@ export class DedicatedGameHandler implements BaseGameHandler {
   timer;
 
   constructor(gameCode: GameCode) {
+    super();
+
     this.gameCode = gameCode;
     this.gameSettings = createGameSettings(GameDirectory[gameCode]);
-
-    // TODO is there more to do?
   }
+
+  // 
+  getRoomInfo() {
+    return {
+      type: "",
+
+      ID: this.ID,
+      players: this.players,
+
+      gameCode: this.gameCode,
+      gameSettings: this.gameSettings
+    }
+  }
+
+
 
   // TODO games won't continue if a game has failed to start
   // TODO teams need to be reset if the game has already modified them

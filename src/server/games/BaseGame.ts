@@ -20,7 +20,7 @@ export class BaseGame {
   }
 
   start?(): void;
-  playerJoined?(player: Player): void;
+  playerJoined?(player: Player): any; // The game is allowed to change the gameState safely and emit to other players (but not this one)
   playerLeft?(player: Player): void;
   cleanup?(): void;
 

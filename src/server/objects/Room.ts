@@ -1,54 +1,35 @@
 import { randomUUID } from "crypto";
 import { GameDirectory, GameCode } from "../GameDirectory";
 import io from "..";
-import { LegacyBaseGame } from "./LegacyBaseGame";
 import { clearInterval } from "timers";
 import { BaseGameHandler, StartResult } from "../gamehandlers/BaseGameHandler";
 import { Player } from "../entities/Player";
+import { DedicatedGameHandler } from "../gamehandlers/DedicatedGameHandler";
 
-export class Room {
+// could put the timer in Room instead of forcing it in DedicatedGameHandler
+// but then where does chat fit into all this? 
+
+export class Room { // probably should do a HostedGameHandler or something
   ID: string;
   players: [Player?];
-
-  //gameCode: GameCode;
-  //inProgress: boolean;
-
-  //game?: LegacyBaseGame;
-  //timer;
-
-  gameHandler: BaseGameHandler; // Do rooms REQUIRE a game handler? What if it's just a chatroom or something?
   
-  constructor() { //gameCode: GameCode
+  constructor() {
     this.ID = randomUUID();
     this.players = [];
-
-    //this.gameCode = gameCode;
-    //this.inProgress = false;
-
-    // let x = 15;
-    // this.timer = setInterval(() => {
-    //   if (this.inProgress) return;
-    //   if (this.players.length < GameDirectory[this.gameCode].minPlayers) {
-    //     x = 15;
-    //   } else {
-    //     if (x < 0) {
-    //       this.startGame();
-    //       x = 15;
-    //       return;
-    //     }
-    //     if (x == 15 || x == 5) console.log('Lobby ' + this.ID + ' is starting in ' + x + ' seconds!');
-    //     x--;
-    //   }
-    // }, 1000);
   }
 
   getRoomInfo() {
     return {
+      type: "room",
+
       ID: this.ID,
-      players: this.players,
-      // gameCode: this.gameCode
-      // add GameHandler information here
+      players: this.players
     }
+  }
+
+  // TODO some of these methods should be in BaseGameHandler
+  emit(player: Player) {
+    return player.socket.emit('game:')
   }
 
   addPlayer(player: Player) {
@@ -61,10 +42,13 @@ export class Room {
 
     console.log("Player joined room " + this.ID + " - " + this.players.length + " in room");
 
-    // if (this.inProgress) {
-    //   player.socket.emit('initGame', this.ID);
-    //   if (this.game.playerJoined) this.game.playerJoined(player);
-    // }
+    if (this.inProgress) {
+      player.socket.emit(`${this.ID}:init`);
+      if (this.game.playerJoined) {
+        let data = this.game.playerJoined(player);
+        this.startPlayer(player, data);
+      }
+    }
   }
 
   removePlayer(player: Player) {
