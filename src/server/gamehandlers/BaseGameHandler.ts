@@ -1,11 +1,11 @@
 import { GameCode } from "../GameDirectory";
 import { BaseGame } from "../games/BaseGame";
 import { GameSettings } from "../objects/GameSettings";
-import { Room } from "../objects/Room";
+import { Lobby } from "../objects/Room";
 
 // could be a class that demonstrates idle - so other classes call super() on this
 
-export class BaseGameHandler extends Room {
+export class BaseGameHandler extends Lobby {
   gameSettings: GameSettings;
   inProgress: boolean = false;
   

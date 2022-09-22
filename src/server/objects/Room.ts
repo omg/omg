@@ -6,10 +6,12 @@ import { BaseGameHandler, StartResult } from "../gamehandlers/BaseGameHandler";
 import { Player } from "../entities/Player";
 import { DedicatedGameHandler } from "../gamehandlers/DedicatedGameHandler";
 
-// could put the timer in Room instead of forcing it in DedicatedGameHandler
-// but then where does chat fit into all this? 
+// DedicatedGameHandler is an extension of Lobby that can run games
+// Room is an extension of DedicatedGameHandler with a host and moderators and eventually more
+// Lobbies inherently support chat - chat should go here
+// If needed, there can be a toggle for chat in Lobby
 
-export class Room { // probably should do a HostedGameHandler or something
+export class Lobby { // probably should do a HostedGameHandler or something
   ID: string;
   players: [Player?];
   
@@ -18,9 +20,9 @@ export class Room { // probably should do a HostedGameHandler or something
     this.players = [];
   }
 
-  getRoomInfo() {
+  getLobbyInfo() {
     return {
-      type: "room",
+      type: "lobby",
 
       ID: this.ID,
       players: this.players
@@ -37,18 +39,20 @@ export class Room { // probably should do a HostedGameHandler or something
     this.players.push(player);
 
     player.socket.join(this.ID);
-    player.socket.emit('room:connect', this.getRoomInfo());
-    player.socket.to(this.ID).emit(`${this.ID}:join`, this.getRoomInfo()); //TODO is this correct?
+    player.socket.emit('lobby:connect', this.getLobbyInfo());
+    player.socket.to(this.ID).emit(`${this.ID}:join`, this.getLobbyInfo()); //TODO is this correct?
 
-    console.log("Player joined room " + this.ID + " - " + this.players.length + " in room");
+    console.log("Player joined lobby " + this.ID + " - " + this.players.length + " in lobby");
 
-    if (this.inProgress) {
-      player.socket.emit(`${this.ID}:init`);
-      if (this.game.playerJoined) {
-        let data = this.game.playerJoined(player);
-        this.startPlayer(player, data);
-      }
-    }
+    // get an onPlayerAdded method by extending an Emitter and have BaseGameHandler listen for it
+    
+    // if (this.inProgress) {
+    //   player.socket.emit(`${this.ID}:init`);
+    //   if (this.game.playerJoined) {
+    //     let data = this.game.playerJoined(player);
+    //     this.startPlayer(player, data);
+    //   }
+    // }
   }
 
   removePlayer(player: Player) {
@@ -57,10 +61,10 @@ export class Room { // probably should do a HostedGameHandler or something
       this.players.splice(index, 1);
 
       player.socket.leave(this.ID);
-      player.socket.emit('room:leave', this.ID);
+      player.socket.emit('lobby:leave', this.ID);
       io.to(this.ID).emit(`${this.ID}:leave`, this.ID, player);
 
-      console.log("Player left room " + this.ID + " - " + this.players.length + " in room");
+      console.log("Player left lobby " + this.ID + " - " + this.players.length + " in lobby");
 
       // if (this.inProgress) {
       //   if (this.game.playerQuit) this.game.playerQuit(player);

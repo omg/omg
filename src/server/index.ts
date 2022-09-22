@@ -1,6 +1,6 @@
 import { Player } from "./entities/Player";
 import { GameCode, GameDirectory } from "./GameDirectory";
-import { Room } from "./objects/Room";
+import { Lobby } from "./objects/Room";
 
 const express = require("express");
 const app = express();
@@ -21,7 +21,7 @@ const PORT = 8080;
 
 let connectedPlayers = [];
 
-let defaultRoom = new Room();
+let defaultRoom = new Lobby();
 
 io.on('connection', (socket) => {
   let player = new Player(socket);

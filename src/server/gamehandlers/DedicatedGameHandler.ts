@@ -2,7 +2,7 @@ import { BaseGameHandler, StartResult } from "./BaseGameHandler";
 import { GameSettings } from "../objects/GameSettings";
 import { createGameSettings, GameCode, GameDirectory } from "../GameDirectory";
 import { BaseGame } from "../games/BaseGame";
-import { Room } from "../objects/Room";
+import { Lobby } from "../objects/Room";
 
 // TODO: dedicated, idle, and arcade-type rooms
 
