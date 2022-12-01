@@ -17,7 +17,15 @@ export class ConnectedPlayers extends EventEmitter {
     }
   }
 
+  hasPlayer(player: Player) {
+    return this.players.includes(player);
+  }
+
   getPlayers(): Player[] {
     return this.players;
   }
+
+  // toJSON() {
+  //   return this.players; // or this.players.map(player => player.toJSON());
+  // }
 }

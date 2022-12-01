@@ -2,16 +2,12 @@ import { BaseGameHandler, StartResult } from "./BaseGameHandler";
 import { GameSettings } from "../objects/GameSettings";
 import { createGameSettings, GameCode, GameDirectory } from "../GameDirectory";
 import { BaseGame } from "../games/BaseGame";
-import { Lobby } from "../objects/Room";
+import { Lobby } from "../objects/Lobby";
 
 // TODO: dedicated, idle, and arcade-type rooms
 
 export class DedicatedGameHandler extends BaseGameHandler {
-  gameSettings: GameSettings;
-  inProgress: boolean = false;
-
-  gameCode: GameCode;
-  game?: BaseGame;
+  lobbyType: string = "dedicatedlobby";
 
   timer;
 
