@@ -1,7 +1,7 @@
 import { Entity } from "./Entity";
 import { Player } from "./Player";
 
-export enum AddResult {
+export enum PlayerQueueResult {
   ALREADY_IN_QUEUE,
   ALREADY_ON_TEAM,
   ADDED_TO_QUEUE,
