@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "allowJs": true,
-    "baseUrl": ".",
+    "baseUrl": "./src", // i changed this from .
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "lib": ["dom", "es2020"],
@@ -17,8 +17,8 @@
     "outDir": "dist/server"
   },
   "paths": {
-    "server/*": ["src/server/*"],
-    "shared/*": ["src/shared/*"]
+    "@server/*": ["server/*"],
+    "@shared/*": ["shared/*"]
   },
-  "include": ["src/server/**/*", "src/shared/**/*"]
+  "include": ["./src/server/**/*", "./src/shared/**/*"]
 }
