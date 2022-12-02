@@ -1,5 +1,6 @@
+import { WeightType } from "shared/teams/TeamTypes";
 import { Player } from "../entities/Player";
-import { PlayerQueueResult, Team } from "../entities/Team";
+import { DEFAULT_TEAM_SETTINGS, Team } from "../entities/Team";
 
 export type PlayerInfo = {
   player: Player;
@@ -7,6 +8,13 @@ export type PlayerInfo = {
   color: number;
   grayed: boolean;
   prefix: string;
+}
+
+export enum PlayerQueueResult {
+  ALREADY_IN_QUEUE,
+  ALREADY_ON_TEAM,
+  ADDED_TO_QUEUE,
+  ADDED_TO_TEAM
 }
 
 // TODO rewrite this a little
@@ -17,39 +25,57 @@ export type PlayerInfo = {
 export class EntityData {
   teams: Team[];
   teamBalancing: boolean;
+  respectGroupStick: boolean = true;
 
   playerInfo: PlayerInfo[] = [];
-  // default team?
 
   constructor(teams: Team[] = [], teamBalancing: boolean = true) {
     this.teams = teams;
     this.teamBalancing = teamBalancing;
+
+    // TODO if teams are given, playerinfo probably needs to be populated
+
     this.checkTeams();
   }
 
-  private checkTeams() {
-    // default team?
-    if (this.teams.length === 0) this.teams.push(new Team("Players", false));
+  private checkTeams(): void {
+    if (this.teams.length === 0) this.teams.push(new Team(DEFAULT_TEAM_SETTINGS));
   }
 
-  private isTeamFull(team: Team) {
-    return team.players.length + 1 > team.balancePercentage * this.playerInfo.length;
-    // return team.players.length >= team.balancePercentage * this.playerInfo.length;
+  private getCombinedWeight(): number {
+    // combine all team weights from teams with weight type weight
+    return this.teams.reduce((total, team) => {
+      if (team.balanceType === WeightType.WEIGHT) return total + team.balanceWeight;
+      return total;
+    }, 0);
   }
 
-  getAvailableTeams() {
+  private isTeamFull(team: Team): boolean {
+    switch (team.balanceType) {
+      case WeightType.PERCENTAGE:
+        return team.players.length + 1 > team.balanceWeight * this.playerInfo.length;
+      case WeightType.WEIGHT:
+        let combinedWeight = this.getCombinedWeight();
+        if (combinedWeight === 0) return false;
+        return team.players.length + 1 > (team.balanceWeight / combinedWeight) * this.playerInfo.length;
+      default:
+        return false;
+    }
+  }
+
+  getAvailableTeams(): Team[] {
     return this.teams.filter(team => !this.isTeamFull(team));
   }
 
-  getNextAvailableTeam() {
+  getNextAvailableTeam(): Team {
     let availableTeams = this.getAvailableTeams();
     if (availableTeams.length === 0) return null;
     // get a random team
     return availableTeams[Math.floor(Math.random() * availableTeams.length)];
   }
 
-  getTeamlessPlayers() {
-    return this.playerInfo.filter(playerInfo => !this.getTeamOf(playerInfo.player));
+  getTeamlessPlayers(): Player[] {
+    return this.playerInfo.map(playerInfo => playerInfo.player).filter(player => !this.getTeamOf(player));
   }
 
   addPlayerToTeam(player: Player, newTeam: Team): PlayerQueueResult {
@@ -82,22 +108,22 @@ export class EntityData {
     return PlayerQueueResult.ADDED_TO_TEAM;
   }
 
-  forcePlayersIntoTeams() {
+  forcePlayersIntoTeams(): void {
     // get all players who aren't in a team yet
     let playersWithoutTeam = this.getTeamlessPlayers();
 
     // put all players into the next available team
-    for (let playerInfo of playersWithoutTeam) {
+    for (let player of playersWithoutTeam) {
       let team = this.getNextAvailableTeam();
       if (!team) break;
-      team.players.push(playerInfo.player);
+      team.players.push(player);
     }
 
     // watch the team queues - when a player is placed in a team, queues need to be updated
 
   }
 
-  addPlayer(player: Player) {
+  addPlayer(player: Player): void {
     this.playerInfo.push({
       player,
       nickname: null,
@@ -107,7 +133,7 @@ export class EntityData {
     });
   }
 
-  removePlayer(player: Player) {
+  removePlayer(player: Player): void {
     let index = this.playerInfo.findIndex(playerInfo => playerInfo.player === player);
     if (index > -1) this.playerInfo.splice(index, 1);
 
