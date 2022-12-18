@@ -1,6 +1,6 @@
 import { WeightType } from "shared/teams/TeamTypes";
-import { Player } from "../entities/Player";
-import { DEFAULT_TEAM_SETTINGS, Team } from "../entities/Team";
+import { Player } from "server/entities/Player";
+import { DEFAULT_TEAM_SETTINGS, Team } from "server/entities/Team";
 
 export type PlayerInfo = {
   player: Player;
@@ -17,12 +17,7 @@ export enum PlayerQueueResult {
   ADDED_TO_TEAM
 }
 
-// TODO rewrite this a little
-// entitydata can't balance players by itself
-// the basegamehandler needs to feed it data
-// don't develop this class like it can do it by itself
-
-export class EntityData {
+export class PlayerContainer {
   teams: Team[];
   teamBalancing: boolean;
   respectGroupStick: boolean = true;
@@ -34,8 +29,22 @@ export class EntityData {
     this.teamBalancing = teamBalancing;
 
     // TODO if teams are given, playerinfo probably needs to be populated
+    // or teams should just be stripped of players
 
     this.checkTeams();
+  }
+
+  get length(): number {
+    return this.playerInfo.length;
+  }
+
+  get players(): Player[] {
+    return this.playerInfo.map(playerInfo => playerInfo.player);
+  }
+
+  hasPlayer(player: Player): boolean {
+    // todo check this
+    return this.playerInfo.some(playerInfo => playerInfo.player === player);
   }
 
   private checkTeams(): void {
@@ -135,7 +144,9 @@ export class EntityData {
 
   removePlayer(player: Player): void {
     let index = this.playerInfo.findIndex(playerInfo => playerInfo.player === player);
-    if (index > -1) this.playerInfo.splice(index, 1);
+    if (index === -1) return;
+
+    this.playerInfo.splice(index, 1);
 
     // remove player from team
     for (let team of this.teams) {

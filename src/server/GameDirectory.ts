@@ -1,7 +1,7 @@
 import { DummyGame } from "./games/DummyGame"
-import { BaseGame } from "./games/BaseGame";
+import { Game } from "./games/Game";
 import { Team } from "./entities/Team";
-import { GameSettings } from "./objects/GameSettings";
+import { GameSettings } from "./settings/GameSettings";
 
 const DIRECTORY = {
   
@@ -19,14 +19,14 @@ const DIRECTORY = {
 
 export type DirectoryInformation = {
   name: string;
-  game: typeof BaseGame;
+  game: typeof Game;
 
   minPlayers: number;
   getDefaultTeams(): Team[];
 }
 
 export function createGameSettings(game: DirectoryInformation) {
-  return new GameSettings(game.minPlayers, game.getDefaultTeams());
+  //return new GameSettings(game.minPlayers, game.getDefaultTeams());
 }
 
 export type GameCode = keyof typeof DIRECTORY;

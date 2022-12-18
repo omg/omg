@@ -1,16 +1,29 @@
-import { Container } from "pixi.js";
 import { Player } from "../entities/Player";
-import { BaseGameHandler } from "../gamehandlers/BaseGameHandler";
-import { GameSettings } from "../objects/GameSettings";
+import { GameLobby } from "../gamehandlers/GameLobby";
+import { GameSettings } from "../settings/GameSettings";
+import { GameCode } from "server/GameDirectory";
 
-export class BaseGame {
+// load all games from files in the games folder to create a directory of games
+
+// each game has gameproperties - this allows it 
+export type GameProperties = {
+  minimumPlayers: number;
+  displayName: string;
+  
+  playable: boolean;
+}
+
+export abstract class Game {
+  public readonly minimumPlayers: number;
+  public readonly displayName: string;
+
+  public readonly playable: boolean;
+  
   gameState: GameState;
   
-  gameHandler: BaseGameHandler;
+  gameHandler: GameLobby;
 
-  gameContainer: Container;
-
-  constructor(gameHandler: BaseGameHandler) {
+  constructor(gameHandler: GameLobby) {
     this.gameHandler = gameHandler;
 
     // how will players be accessed without the GameHandler?

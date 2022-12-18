@@ -2,10 +2,10 @@ import { randomUUID } from "crypto";
 import { GameDirectory, GameCode } from "../GameDirectory";
 import io from "..";
 import { clearInterval } from "timers";
-import { BaseGameHandler, StartResult } from "../gamehandlers/BaseGameHandler";
+import { GameLobby, StartResult } from "../gamehandlers/GameLobby";
 import { Player } from "../entities/Player";
 import { DedicatedGameHandler } from "../gamehandlers/DedicatedGameHandler";
-import { EntityData } from "./EntityData";
+import { PlayerContainer } from "./PlayerContainer";
 import EventEmitter = require("events");
 
 // DedicatedGameHandler is an extension of BaseGameHandler that can run games
@@ -13,28 +13,36 @@ import EventEmitter = require("events");
 // Lobbies inherently support chat - chat should go here
 // If needed, there can be a toggle for chat in Lobby. But that's not needed for now.
 
-export class Lobby extends EventEmitter {
-  lobbyType: string = "lobby"; // this might be a weird way to do object detection
+export enum LobbyAddResult {
+  OK,
+  ALREADY_IN_LOBBY,
+  LOBBY_FULL
+}
 
-  ID: string;
-  players: Player[];
+export enum LobbyRemoveResult {
+  OK,
+  NOT_IN_LOBBY
+}
 
-  entityData: EntityData;
+export abstract class Lobby { // extends EventEmitter if necessary // maybe abstract - what's the point of a lobby without a game?
+  public ID: string;
+
+  public playerContainer: PlayerContainer;
+  public maxPlayers: number = 10; // idk where to put this. this is definitely part of lobby settings
   
   constructor() {
-    super();
+    // super();
 
     this.ID = randomUUID();
-    this.players = [];
-    this.entityData = new EntityData();
+    this.playerContainer = new PlayerContainer();
   }
 
-  getLobbyInfo() {
+  public getLobbyInfo() {
     return {
       ID: this.ID,
-      players: this.players,
+      //players: this.players,
 
-      entityData: this.entityData
+      playerContainer: this.playerContainer
     }
   }
 
@@ -43,24 +51,25 @@ export class Lobby extends EventEmitter {
   //   return player.socket.emit('game:')
   // }
 
-  addPlayer(player: Player) {
+  public addPlayer(player: Player): LobbyAddResult {
     // Check if the player is already in the lobby
-    if (this.players.includes(player)) return;
+    if (this.playerContainer.hasPlayer(player)) return LobbyAddResult.ALREADY_IN_LOBBY;
     
     // Add the player to the lobby
-    this.players.push(player);
+    this.playerContainer.addPlayer(player);
+    // force player on team on the extending class after calling super() on THIS method.
 
     // Add the player to the EntityData
     // if the game is about to start - force them on a team - otherwise don't
 
     // Tell all players in the lobby that a player has joined
     player.socket.join(this.ID);
-    player.socket.emit('lobby:connect', this.lobbyType, this.getLobbyInfo());
+    player.socket.emit('lobby:connect', this.getLobbyInfo());
     player.socket.to(this.ID).emit(`${this.ID}:join`, player);
 
     // Emit to this object that a player has joined
-    this.emit('join', player);
-    console.log("Player joined lobby " + this.ID + " - " + this.players.length + " in lobby");
+    // this.emit('join', player);
+    console.log("Player joined lobby " + this.ID + " - " + this.playerContainer.length + " in lobby"); // make a getter for length
 
     // get an onPlayerJoin method by extending an Emitter and have BaseGameHandler listen for it
     
@@ -72,28 +81,28 @@ export class Lobby extends EventEmitter {
     //     this.startPlayer(player, data);
     //   }
     // }
+
+    return LobbyAddResult.OK;
   }
 
-  removePlayer(player: Player) {
-    let index = this.players.indexOf(player);
-    if (index > -1) {
-      // Remove the player from the lobby
-      this.players.splice(index, 1);
+  removePlayer(player: Player): LobbyRemoveResult {
+    if (!this.playerContainer.hasPlayer(player)) return LobbyRemoveResult.NOT_IN_LOBBY;
+    
+    // Tell all players in the lobby that a player has left
+    player.socket.leave(this.ID);
+    player.socket.emit('lobby:leave', this.ID);
+    io.to(this.ID).emit(`${this.ID}:leave`, this.ID, player);
 
-      // Tell all players in the lobby that a player has left
-      player.socket.leave(this.ID);
-      player.socket.emit('lobby:leave', this.ID);
-      io.to(this.ID).emit(`${this.ID}:leave`, this.ID, player);
+    // Emit to this object that a player has left
+    // this.emit('leave', player);
+    console.log("Player left lobby " + this.ID + " - " + this.playerContainer.length + " in lobby");
 
-      // Emit to this object that a player has left
-      this.emit('leave', player);
-      console.log("Player left lobby " + this.ID + " - " + this.players.length + " in lobby");
+    // This will go in game handlers
+    // if (this.inProgress) {
+    //   if (this.game.playerLeft) this.game.playerLeft(player);
+    // }
 
-      // This will go in game handlers
-      // if (this.inProgress) {
-      //   if (this.game.playerLeft) this.game.playerLeft(player);
-      // }
-    }
+    return LobbyRemoveResult.OK;
   }
 
   // startGame(): StartResult {
@@ -125,6 +134,8 @@ export class Lobby extends EventEmitter {
   // }
   
   cleanup() {
-    for (let player of this.players) this.removePlayer(player);
+    for (let player of this.playerContainer.players) this.removePlayer(player);
   }
+
+  abstract getStatus(): string;
 }
