@@ -32,6 +32,7 @@ export type SettingSchema<T> = {
 
   // settings that are enabled when this setting is enabled
   enabledSettings?: Setting<any>[];
+  // graying settings
 }
 
 export abstract class Setting<T> {
