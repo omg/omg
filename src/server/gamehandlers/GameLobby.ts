@@ -49,19 +49,19 @@ export abstract class GameLobby extends Lobby { // made this abstract so it can'
   // CEX, FFS, FS
 
   abstract startGame(): StartResult;
+  abstract endGame(): void;
 
   public addPlayer(player: Player): LobbyAddResult {
+    // do i have to do more here? should i just delete this method?
     return super.addPlayer(player);
   }
 
   cleanup() {
-    // do more i guess
+    // do more here with cleaning up the game and such if it's in progress (i guess)
     super.cleanup();
   }
 
   // getCommands(): Command[];
-  // scoreboardRequestEvent() from Crashgrid
-  abstract endGame(): void;
 }
 
 export enum StartResult {
