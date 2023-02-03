@@ -1,7 +1,7 @@
 import { GameCode } from "../GameDirectory";
 
 // // could upgrade to a class later - but right now no special methods are required
-// export type GameSettings = {
+// type GameSettings = {
 //   // TODO let the game decide if the teams or minPlayers should be modifiable
 //   // TODO where do maxPlayers fit? gamesettings? room?
 //   // one of the prior AND lobby?
@@ -21,7 +21,130 @@ import { GameCode } from "../GameDirectory";
 
 // what about a list where you can add new strings
 
-export type SettingSchema<T> = {
+class Section {
+  name: string;
+  settings: Setting<any>[];
+
+  constructor(name: string, settings: Setting<any>[]) {
+    this.name = name;
+    this.settings = settings;
+  }
+}
+
+class Tab {
+  name: string;
+  sections: Section[];
+
+  constructor(name: string, sections: Section[]) {
+    this.name = name;
+    this.sections = sections;
+  }
+}
+
+type BasicSetting = {
+  key: string;
+  value: any;
+}
+
+type TabbedBasicSetting = BasicSetting & {
+  tab: string;
+  section: string;
+}
+
+// probably needs to be renamed
+class Settings {
+  tabs: Tab[];
+
+  constructor(master: string, tabs: Tab[]) {
+    // master is currently a throwaway variable used to identify what kind of settings these are
+    this.tabs = tabs;
+  }
+
+  getSetting(key: string): Setting<any> {
+    for (let tab of this.tabs) {
+      for (let section of tab.sections) {
+        for (let setting of section.settings) {
+          if (setting.key === key) return setting;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  // added unsafe because it doesn't check if the settings are different and can be janky in some cases
+  importSettingsUnsafe(settingManager: Settings): void {
+    // add all the settings from the settingManager to this settingManager if they don't exist or are different
+    for (let tab of settingManager.tabs) {
+      for (let section of tab.sections) {
+        for (let setting of section.settings) {
+          let existingSetting = this.getSetting(setting.key);
+          if (existingSetting === null) {
+            
+          } else {
+            // TODO check if the setting is different
+          }
+        }
+      }
+    }
+  }
+
+  importJSON(settings: BasicSetting[]) {
+    for (let setting of settings) {
+      let existingSetting = this.getSetting(setting.key);
+      if (existingSetting !== null) {
+        existingSetting.setValue(setting.value);
+      }
+    }
+  }
+
+  // probably should rename this - this takes the settings in this object and turns them into TabbedBasicSettings for use in the frontend
+  exportSettings(): TabbedBasicSetting[] {
+    let tabbedBasicSettings: TabbedBasicSetting[] = [];
+
+    for (let tab of this.tabs) {
+      for (let section of tab.sections) {
+        for (let setting of section.settings) {
+          tabbedBasicSettings.push({
+            tab: tab.name,
+            section: section.name,
+            key: setting.key,
+            value: setting.value,
+          });
+        }
+      }
+    }
+
+    return tabbedBasicSettings;
+  }
+
+  // probably should rename this - this takes the settings in this object and strips the extra information for use in databases
+  toJSON(): BasicSetting[] {
+    let basicSettings: BasicSetting[] = [];
+
+    for (let tab of this.tabs) {
+      for (let section of tab.sections) {
+        for (let setting of section.settings) {
+          basicSettings.push({
+            key: setting.key,
+            value: setting.value,
+          });
+        }
+      }
+    }
+
+    return basicSettings;
+  }
+}
+
+// need "dummy settings" such as username and email and password that's just grayed out and can't be changed
+// but it has a button next to it to open a modal to change it
+
+// some settings can have descriptions
+// some sections can have descriptions
+// some tabs can have tooltips
+
+type SettingSchema<T> = {
   key: string;
 
   tab: string;
@@ -35,7 +158,7 @@ export type SettingSchema<T> = {
   // graying settings
 }
 
-export abstract class Setting<T> {
+abstract class Setting<T> {
   key: string;
   
   tab: string;
@@ -71,12 +194,12 @@ export abstract class Setting<T> {
   }
 }
 
-export type NumberSettingSchema = SettingSchema<number> & {
+type NumberSettingSchema = SettingSchema<number> & {
   min?: number;
   max: number;
 }
 
-export class NumberSetting extends Setting<number> {
+class NumberSetting extends Setting<number> {
   min: number;
   max: number;
 
@@ -95,7 +218,7 @@ export class NumberSetting extends Setting<number> {
   }
 }
 
-export class IntegerSetting extends NumberSetting {
+class IntegerSetting extends NumberSetting {
   validate(value: any): boolean {
     let superValidationResult = super.validate(value);
     if (!superValidationResult) return superValidationResult;
@@ -107,12 +230,12 @@ export class IntegerSetting extends NumberSetting {
   }
 }
 
-export type NumberRange = {
+type NumberRange = {
   minValue: number;
   maxValue: number;
 }
 
-export type RangeSettingSchema = SettingSchema<NumberRange> & {
+type RangeSettingSchema = SettingSchema<NumberRange> & {
   min: number;
   max: number;
   minDifference?: number;
@@ -120,7 +243,7 @@ export type RangeSettingSchema = SettingSchema<NumberRange> & {
 }
 
 // range setting - min and max values are numbers with min and max values on the min and max values
-export class RangeSetting extends Setting<NumberRange> {
+class RangeSetting extends Setting<NumberRange> {
   min: number;
   max: number;
   minDifference: number;
@@ -163,20 +286,20 @@ export class RangeSetting extends Setting<NumberRange> {
   }
 }
 
-export class BooleanSetting extends Setting<boolean> {
+class BooleanSetting extends Setting<boolean> {
   validate(value: any): boolean {
     if (typeof value !== "boolean") return false;
     return true;
   }
 }
 
-export type StringSettingSchema = SettingSchema<string> & {
+type StringSettingSchema = SettingSchema<string> & {
   regex?: RegExp;
   minLength?: number;
   maxLength: number;
 }
 
-export class StringSetting extends Setting<string> {
+class StringSetting extends Setting<string> {
   regex?: RegExp;
   minLength?: number;
   maxLength: number;
@@ -198,11 +321,11 @@ export class StringSetting extends Setting<string> {
   }
 }
 
-export type DropdownSettingSchema<T> = SettingSchema<T> & {
+type DropdownSettingSchema<T> = SettingSchema<T> & {
   options: T[];
 }
 
-export class DropdownSetting<T> extends Setting<T> {
+class DropdownSetting<T> extends Setting<T> {
   options: T[];
 
   constructor(settingSchema: DropdownSettingSchema<T>) {
@@ -217,18 +340,18 @@ export class DropdownSetting<T> extends Setting<T> {
   }
 }
 
-// export type SettingFactory = {
+// type SettingFactory = {
 //   [key: string
 // ]: (settingSchema: SettingSchema<any>) => Setting<any>
 // }
 
-export const SettingFactory = {
-  number: (settingSchema: NumberSettingSchema) => new NumberSetting(settingSchema),
-  integer: (settingSchema: NumberSettingSchema) => new IntegerSetting(settingSchema),
-  boolean: (settingSchema: SettingSchema<boolean>) => new BooleanSetting(settingSchema),
-  string: (settingSchema: StringSettingSchema) => new StringSetting(settingSchema),
-  dropdown: (settingSchema: DropdownSettingSchema<any>) => new DropdownSetting(settingSchema),
-}
+// const SettingFactory = {
+//   number: (settingSchema: NumberSettingSchema) => new NumberSetting(settingSchema),
+//   integer: (settingSchema: NumberSettingSchema) => new IntegerSetting(settingSchema),
+//   boolean: (settingSchema: SettingSchema<boolean>) => new BooleanSetting(settingSchema),
+//   string: (settingSchema: StringSettingSchema) => new StringSetting(settingSchema),
+//   dropdown: (settingSchema: DropdownSettingSchema<any>) => new DropdownSetting(settingSchema),
+// }
 
 // SettingFactory.number({
 //   key: "rechargeCooldown",
@@ -242,7 +365,7 @@ export const SettingFactory = {
 
 // rangesetting
 
-// export abstract class GameSettings {
+// abstract class GameSettings {
 //   gameCode: GameCode;
 
 
