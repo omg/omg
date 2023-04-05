@@ -24,7 +24,16 @@ export enum LobbyRemoveResult {
   NOT_IN_LOBBY
 }
 
-export abstract class Lobby { // extends EventEmitter if necessary // maybe abstract - what's the point of a lobby without a game?
+/*
+
+Lobbies support chat - chat should go here.
+If needed, there can be a toggle for chat in Lobby. But that's not needed for now.
+
+DedicatedGameHandler is an extension of GameLobby
+
+*/
+
+export abstract class Lobby {
   public ID: string;
 
   public playerContainer: PlayerContainer;
@@ -37,7 +46,7 @@ export abstract class Lobby { // extends EventEmitter if necessary // maybe abst
     this.playerContainer = new PlayerContainer();
   }
 
-  public getLobbyInfo() {
+  getLobbyInfo() {
     return {
       ID: this.ID,
       //players: this.players,
@@ -51,7 +60,7 @@ export abstract class Lobby { // extends EventEmitter if necessary // maybe abst
   //   return player.socket.emit('game:')
   // }
 
-  public addPlayer(player: Player): LobbyAddResult {
+  addPlayer(player: Player): LobbyAddResult {
     // Check if the player is already in the lobby
     if (this.playerContainer.hasPlayer(player)) return LobbyAddResult.ALREADY_IN_LOBBY;
     

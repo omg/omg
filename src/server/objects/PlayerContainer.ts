@@ -41,12 +41,7 @@ export class PlayerContainer {
   get players(): Player[] {
     return this.playerInfo.map(playerInfo => playerInfo.player);
   }
-
-  hasPlayer(player: Player): boolean {
-    // todo check this
-    return this.playerInfo.some(playerInfo => playerInfo.player === player);
-  }
-
+  
   private checkTeams(): void {
     if (this.teams.length === 0) this.teams.push(new Team(DEFAULT_TEAM_SETTINGS));
   }
@@ -70,6 +65,11 @@ export class PlayerContainer {
       default:
         return false;
     }
+  }
+
+  hasPlayer(player: Player): boolean {
+    // todo check this
+    return this.playerInfo.some(playerInfo => playerInfo.player === player);
   }
 
   getAvailableTeams(): Team[] {

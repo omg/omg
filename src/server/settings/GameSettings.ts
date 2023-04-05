@@ -55,7 +55,7 @@ type TabbedBasicSetting = BasicSetting & {
 class Settings {
   tabs: Tab[];
 
-  constructor(master: string, tabs: Tab[]) {
+  constructor(_master: string, tabs: Tab[]) {
     // master is currently a throwaway variable used to identify what kind of settings these are
     this.tabs = tabs;
   }
