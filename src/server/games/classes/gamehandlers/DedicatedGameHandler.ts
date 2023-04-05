@@ -1,8 +1,8 @@
-import { GameLobby, StartResult } from "./GameLobby";
+import { GameLobby, StartResult } from "../abstracts/GameLobby";
 import { GameSettings } from "../../../settings/GameSettings";
 import { createGameSettings, GameCode, GameDirectory } from "../../../GameDirectory";
 import { Game } from "../Game";
-import { Lobby } from "../../../objects/Lobby";
+import { Lobby } from "../abstracts/Lobby";
 
 // TODO: dedicated, idle, and arcade-type rooms
 

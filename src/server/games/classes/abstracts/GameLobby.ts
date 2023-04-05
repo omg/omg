@@ -1,6 +1,6 @@
 import { Game } from "../Game";
 import { GameSettings } from "../../../settings/GameSettings";
-import { Lobby, LobbyAddResult } from "../../../objects/Lobby";
+import { Lobby, LobbyAddResult } from "./Lobby";
 import { PlayerContainer } from "../../../objects/PlayerContainer";
 import { Player } from "server/games/classes/entities/Player";
 import { GameCode } from "server/GameDirectory";

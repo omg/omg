@@ -1,5 +1,5 @@
 import { Player } from "./entities/Player";
-import { GameLobby } from "./gamehandlers/GameLobby";
+import { GameLobby } from "./abstracts/GameLobby";
 import { GameSettings } from "../../settings/GameSettings";
 import { GameCode } from "server/GameDirectory";
 

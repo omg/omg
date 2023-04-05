@@ -1,6 +1,6 @@
 import { Player } from "./games/classes/entities/Player";
 import { GameCode, GameDirectory } from "./GameDirectory";
-import { Lobby } from "./objects/Lobby";
+import { Lobby } from "./games/classes/abstracts/Lobby";
 
 const express = require("express");
 const app = express();

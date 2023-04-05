@@ -1,6 +1,6 @@
 import { Container } from "pixi.js";
 import { Game } from "./classes/Game";
-import { GameLobby } from "./classes/gamehandlers/GameLobby";
+import { GameLobby } from "./classes/abstracts/GameLobby";
 
 export type DummyGameState = {}
 
