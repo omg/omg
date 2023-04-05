@@ -1,6 +1,6 @@
-import { Player } from "../entities/Player";
-import { GameLobby } from "../gamehandlers/GameLobby";
-import { GameSettings } from "../settings/GameSettings";
+import { Player } from "./entities/Player";
+import { GameLobby } from "./gamehandlers/GameLobby";
+import { GameSettings } from "../../settings/GameSettings";
 import { GameCode } from "server/GameDirectory";
 
 // load all games from files in the games folder to create a directory of games

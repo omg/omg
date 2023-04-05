@@ -1,8 +1,8 @@
-import { Game } from "../games/Game";
-import { GameSettings } from "../settings/GameSettings";
-import { Lobby, LobbyAddResult } from "../objects/Lobby";
-import { PlayerContainer } from "../objects/PlayerContainer";
-import { Player } from "server/entities/Player";
+import { Game } from "../Game";
+import { GameSettings } from "../../../settings/GameSettings";
+import { Lobby, LobbyAddResult } from "../../../objects/Lobby";
+import { PlayerContainer } from "../../../objects/PlayerContainer";
+import { Player } from "server/games/classes/entities/Player";
 import { GameCode } from "server/GameDirectory";
 
 // could be a class that demonstrates idle - so other classes call super() on this

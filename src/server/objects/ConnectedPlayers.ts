@@ -1,5 +1,5 @@
 import EventEmitter = require("events");
-import { Player } from "../entities/Player";
+import { Player } from "../games/classes/entities/Player";
 
 export class ConnectedPlayers extends EventEmitter {
   private players: Player[] = [];

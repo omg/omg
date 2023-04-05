@@ -2,9 +2,9 @@ import { randomUUID } from "crypto";
 import { GameDirectory, GameCode } from "../GameDirectory";
 import io from "..";
 import { clearInterval } from "timers";
-import { GameLobby, StartResult } from "../gamehandlers/GameLobby";
-import { Player } from "../entities/Player";
-import { DedicatedGameHandler } from "../gamehandlers/DedicatedGameHandler";
+import { GameLobby, StartResult } from "../games/classes/gamehandlers/GameLobby";
+import { Player } from "../games/classes/entities/Player";
+import { DedicatedGameHandler } from "../games/classes/gamehandlers/DedicatedGameHandler";
 import { PlayerContainer } from "./PlayerContainer";
 import EventEmitter = require("events");
 

@@ -1,4 +1,4 @@
-import { Player } from "./entities/Player";
+import { Player } from "./games/classes/entities/Player";
 import { GameCode, GameDirectory } from "./GameDirectory";
 import { Lobby } from "./objects/Lobby";
 

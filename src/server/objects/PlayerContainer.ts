@@ -1,6 +1,6 @@
 import { WeightType } from "shared/teams/TeamTypes";
-import { Player } from "server/entities/Player";
-import { DEFAULT_TEAM_SETTINGS, Team } from "server/entities/Team";
+import { Player } from "server/games/classes/entities/Player";
+import { DEFAULT_TEAM_SETTINGS, Team } from "server/games/classes/entities/Team";
 
 export type PlayerInfo = {
   player: Player;
