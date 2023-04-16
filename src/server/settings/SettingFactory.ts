@@ -1,1 +1,0 @@
-// each setting is an object with a constructor // and a validate function ?

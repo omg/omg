@@ -1,5 +1,5 @@
 import { GameLobby, StartResult } from "../abstracts/GameLobby";
-import { GameSettings } from "../../../settings/GameSettings";
+import { GameSettings } from "../../../../../old/GameSettings";
 import { createGameSettings, GameCode, GameDirectory } from "../../../GameDirectory";
 import { Game } from "../Game";
 import { Lobby } from "../abstracts/Lobby";
