@@ -1,12 +1,32 @@
-// this is basically the same for Section, Tab, and Setting - should name this something to encompass them all
-abstract class Descriptive {
-  name: string;
-  descriptor?: string;
+type BaseOptionSettings<T> = {
+  defaultValue: T;
+  value?: T;
+}
 
-  constructor(name: string, descriptor: string) {
-    this.name = name;
-    this.descriptor = descriptor;
-  }
+type DevDescriptive = DescriptiveLike & {
+  _?: string;
+}
+
+type DescriptiveLike = {
+  name: string;
+  description?: string;
+}
+
+type OptionsLike = DescriptiveLike & {
+  tabs: TabLike[];
+}
+
+type TabLike = DescriptiveLike & {
+  sections: SectionLike[];
+}
+
+type SectionLike = DescriptiveLike & {
+  options: OptionLike<any>[];
+}
+
+type OptionLike<T> = DescriptiveLike & {
+  value: T;
+  type: string;
 }
 
 type ValidationResult = {
@@ -14,28 +34,24 @@ type ValidationResult = {
   message?: string;
 }
 
-type OptionSettings<T> = {
-  defaultValue: T;
-  value: T;
+abstract class DescriptiveObject implements DescriptiveLike {
+  name: string;
+  description?: string;
+
+  constructor(descriptive: DevDescriptive) {
+    this.name = descriptive.name;
+    this.description = descriptive.description;
+  }
 }
 
-// this is sent to clients and then converted into a Setting<T>
-// tabs, sections, and settings are all automatically created on the client
-
-// if tabs and sections are automatically created based on JSONOptions, then how do Descriptive objects work with them?
-// maybe we should just send the settings a different way
-type JSONOption<T> = OptionSettings<T> & {
-  type: string;
-}
-
-abstract class BaseOption<T> extends Descriptive implements JSONOption<T>  {
+abstract class BaseOption<T> extends DescriptiveObject implements OptionLike<T>  {
   defaultValue: T;
   value: T;
 
   type: string;
 
-  constructor(name: string, descriptor: string, settings: OptionSettings<T>) {
-    super(name, descriptor);
+  constructor(descriptive: DevDescriptive, settings: BaseOptionSettings<T>) {
+    super(descriptive);
 
     this.defaultValue = settings.defaultValue;
     this.value = settings.value || settings.defaultValue;
@@ -51,8 +67,8 @@ abstract class BaseOption<T> extends Descriptive implements JSONOption<T>  {
 class BooleanOption extends BaseOption<boolean> {
   type = "boolean";
 
-  constructor(name: string, descriptor: string, settings: OptionSettings<boolean>) {
-    super(name, descriptor, settings);
+  constructor(descriptive: DevDescriptive, settings: BaseOptionSettings<boolean>) {
+    super(descriptive, settings);
   }
 
   validate(value: any): ValidationResult {
@@ -66,8 +82,8 @@ class BooleanOption extends BaseOption<boolean> {
 class NumberOption extends BaseOption<number> {
   type = "number";
 
-  constructor(name: string, descriptor: string, settings: OptionSettings<number>) {
-    super(name, descriptor, settings);
+  constructor(descriptive: DevDescriptive, settings: BaseOptionSettings<number>) {
+    super(descriptive, settings);
   }
 
   validate(value: any): ValidationResult {
@@ -81,8 +97,8 @@ class NumberOption extends BaseOption<number> {
 class IntegerOption extends NumberOption {
   type = "integer";
 
-  constructor(name: string, descriptor: string, settings: OptionSettings<number>) {
-    super(name, descriptor, settings);
+  constructor(descriptive: DevDescriptive, settings: BaseOptionSettings<number>) {
+    super(descriptive, settings);
   }
 
   validate(value: any): ValidationResult {
@@ -102,7 +118,7 @@ type NumberRange = {
   max: number;
 }
 
-type NumberRangeOptionSettings = OptionSettings<NumberRange> & {
+type NumberRangeOptionSettings = BaseOptionSettings<NumberRange> & {
   minValue: number;
   maxValue: number;
   minDifference?: number;
@@ -117,8 +133,8 @@ class NumberRangeOption extends BaseOption<NumberRange> {
   minDifference?: number;
   maxDifference?: number;
 
-  constructor(name: string, descriptor: string, settings: NumberRangeOptionSettings) {
-    super(name, descriptor, settings);
+  constructor(descriptive: DevDescriptive, settings: NumberRangeOptionSettings) {
+    super(descriptive, settings);
 
     this.minValue = settings.minValue;
     this.maxValue = settings.maxValue;
@@ -161,8 +177,8 @@ class NumberRangeOption extends BaseOption<NumberRange> {
 class IntegerRangeOption extends NumberRangeOption {
   type = "integerRange";
 
-  constructor(name: string, descriptor: string, settings: NumberRangeOptionSettings) {
-    super(name, descriptor, settings);
+  constructor(descriptive: DevDescriptive, settings: NumberRangeOptionSettings) {
+    super(descriptive, settings);
   }
 
   validate(value: any): ValidationResult {
@@ -180,7 +196,7 @@ class IntegerRangeOption extends NumberRangeOption {
   }
 }
 
-type StringOptionSettings = OptionSettings<string> & {
+type StringOptionSettings = BaseOptionSettings<string> & {
   regex?: RegExp;
   minLength?: number;
   maxLength?: number;
@@ -193,8 +209,8 @@ class StringOption extends BaseOption<string> {
   minLength?: number;
   maxLength?: number;
 
-  constructor(name: string, descriptor: string, settings: StringOptionSettings) {
-    super(name, descriptor, settings);
+  constructor(descriptive: DevDescriptive, settings: StringOptionSettings) {
+    super(descriptive, settings);
 
     this.regex = settings.regex;
     this.minLength = settings.minLength;
@@ -221,7 +237,7 @@ class StringOption extends BaseOption<string> {
   }
 }
 
-type DropdownOptionSettings = OptionSettings<string> & {
+type DropdownOptionSettings = BaseOptionSettings<string> & {
   options: string[];
 }
 
@@ -230,8 +246,8 @@ class DropdownOption extends BaseOption<string> {
 
   options: string[];
 
-  constructor(name: string, descriptor: string, settings: DropdownOptionSettings) {
-    super(name, descriptor, settings);
+  constructor(descriptive: DevDescriptive, settings: DropdownOptionSettings) {
+    super(descriptive, settings);
 
     this.options = settings.options;
   }
@@ -253,3 +269,91 @@ class DropdownOption extends BaseOption<string> {
 // every setting is defined at the start of the app and defines the restrctions on each setting and has a value (the default value)
 // these settings are cloned into game settings when a lobby is created with a game
 // then the users can modify it
+
+class Options extends DescriptiveObject implements OptionsLike {
+  tabs: Tab[];
+
+  constructor(descriptive: DevDescriptive, tabs: Tab[]) {
+    super(descriptive);
+    
+    this.tabs = tabs;
+  }
+
+  getOption(name: string): BaseOption<any> {
+    for (let tab of this.tabs) {
+      for (let section of tab.sections) {
+        for (let option of section.options) {
+          if (option.name === name) return option;
+        }
+      }
+    }
+    return null;
+  }
+
+  importOptions(options: Options): void {
+    for (let newTab of options.tabs) {
+      for (let newSection of newTab.sections) {
+        for (let newOption of newSection.options) {
+          let thisOption = this.getOption(newOption.name);
+          if (thisOption === null) continue;
+          if (thisOption.type !== newOption.type) continue;
+          // careful - object types aren't checked and could have bloated properties from an attacker
+          // also careful around null values? but then the type would be wrong because it's null
+          if (thisOption.validate(newOption.value).valid) thisOption.value = newOption.value;
+        }
+      }
+    }
+  }
+
+  // TODO
+  importJSON(options: OptionsLike): void {
+    
+  }
+
+  exportOptions(): void {
+    
+  }
+
+  // probably should rename this - this takes the settings in this object and strips the extra information for use in databases
+  toJSON(): void {
+
+  }
+}
+
+class Tab extends DescriptiveObject implements TabLike {
+  sections: Section[];
+
+  constructor(descriptive: DevDescriptive, sections: Section[]) {
+    super(descriptive);
+
+    this.sections = sections;
+  }
+}
+
+class Section extends DescriptiveObject implements SectionLike {
+  options: BaseOption<any>[];
+
+  constructor(descriptive: DevDescriptive, options: BaseOption<any>[]) {
+    super(descriptive);
+
+    this.options = options;
+  }
+}
+
+let wordBombOptions = new Options({
+  _: "Word Bomb",
+
+  name: "options.wordbomb.name",
+}, [
+  new Tab("General", [
+    new Section("General", [
+      new NumberRangeOption(["Word Length", "The length of the words to be guessed."], {
+        defaultValue: { min: 3, max: 10 },
+        minValue: 3,
+        maxValue: 10,
+        minDifference: 1,
+        maxDifference: 5,
+      }),
+    ]),
+  ])
+]);
