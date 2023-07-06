@@ -4,7 +4,9 @@ type LocalTextLike = {
 }
 
 class LocalText {
-  constructor()
+  constructor() {
+    
+  }
 }
 
 let example = {
