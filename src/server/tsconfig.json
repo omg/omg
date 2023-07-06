@@ -15,7 +15,7 @@
     "noImplicitAny": false,
     "sourceMap": true,
     "target": "es5",
-    "outDir": "dist/server",
+    "outDir": "../../dist",
 
     "baseUrl": ".",
     "rootDirs": [".", "../shared"],
