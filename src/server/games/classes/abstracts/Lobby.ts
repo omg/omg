@@ -1,12 +1,8 @@
 import { randomUUID } from "crypto";
-import { GameDirectory, GameCode } from "../GameDirectory";
-import io from "../../..";
-import { clearInterval } from "timers";
-import { GameLobby, StartResult } from "./GameLobby";
-import { Player } from "../entities/Player";
-import { DedicatedGameHandler } from "../gamehandlers/DedicatedGameHandler";
-import { PlayerContainer } from "../../../objects/PlayerContainer";
-import EventEmitter = require("events");
+import io from "@server/index";
+import { Player } from "@server/games/classes/entities/Player";
+import { PlayerContainer } from "@server/objects/PlayerContainer";
+// import EventEmitter = require("events");
 
 // DedicatedGameHandler is an extension of BaseGameHandler that can run games
 // Room is an extension of DedicatedGameHandler with a host and moderators and eventually more
@@ -96,7 +92,10 @@ export abstract class Lobby {
 
   removePlayer(player: Player): LobbyRemoveResult {
     if (!this.playerContainer.hasPlayer(player)) return LobbyRemoveResult.NOT_IN_LOBBY;
-    
+  
+    // Remove the player from the lobby
+    this.playerContainer.removePlayer(player);
+
     // Tell all players in the lobby that a player has left
     player.socket.leave(this.ID);
     player.socket.emit('lobby:leave', this.ID);

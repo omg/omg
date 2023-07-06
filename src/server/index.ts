@@ -1,6 +1,5 @@
 import { Player } from "./games/classes/entities/Player";
-import { GameCode, GameDirectory } from "./GameDirectory";
-import { Lobby } from "./games/classes/abstracts/Lobby";
+import { DedicatedGameHandler } from "./games/classes/gamehandlers/DedicatedGameHandler";
 
 const express = require("express");
 const app = express();
@@ -13,15 +12,16 @@ export default io;
 const path = require("path");
 
 app.use(express.static(path.join(__dirname, "../../public")));
-app.get("/", (req, res) => {
+app.get("/", (_req, res) => {
   res.sendFile(path.join(__dirname, '../../public/dist', 'index.html'));
 });
 
 const PORT = 8080;
+const SERVER_NAME = "Minty"; // Vanilla
 
 let connectedPlayers = [];
 
-let defaultRoom = new Lobby();
+let defaultRoom = new DedicatedGameHandler("DummyGame");
 
 io.on('connection', (socket) => {
   let player = new Player(socket);
@@ -29,7 +29,7 @@ io.on('connection', (socket) => {
 
   console.log('Player connected to Boba server - ' + connectedPlayers.length + ' online.');
   
-  socket.emit('connected', player);
+  socket.emit('connected', player, SERVER_NAME);
   defaultRoom.addPlayer(player);
   
   socket.on('disconnect', () => {

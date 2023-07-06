@@ -1,7 +1,7 @@
 import { Player } from "./entities/Player";
 import { GameLobby } from "./abstracts/GameLobby";
-import { GameSettings } from "../../../../old/GameSettings";
-import { GameCode } from "server/GameDirectory";
+// import { GameSettings } from "../../../../old/GameSettings";
+// import { GameCode } from "server/games/directory/GameDirectory";
 
 // load all games from files in the games folder to create a directory of games
 
@@ -13,11 +13,13 @@ export type GameProperties = {
   playable: boolean;
 }
 
-export abstract class Game {
-  public readonly minimumPlayers: number;
-  public readonly displayName: string;
+// removed abstraction because it prevented me from instantiating the class
+export class Game {
+  // cant do these properties because it's not replicated to the client
+  // public readonly minimumPlayers: number;
+  // public readonly displayName: string;
 
-  public readonly playable: boolean;
+  // public readonly playable: boolean;
   
   gameState: GameState;
   
@@ -58,9 +60,9 @@ export abstract class Game {
     return this.muteItem(player, this.gameState);
   }
   
-  get gameSettings(): GameSettings {
-    return this.gameHandler.gameSettings;
-  }
+  // get gameSettings(): GameSettings {
+  //   return this.gameHandler.gameSettings;
+  // }
 }
 // since Game is forced to be a class because of GameDirectory limitations
 // we can try and allow endGame and emit functions and can do a getter for emits

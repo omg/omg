@@ -1,4 +1,4 @@
-import { GroupStickRespect, PickOrder, PlayerAbductionSetting, TeamJoinSetting, TeamSettings, WeightType } from "shared/teams/TeamTypes";
+import { GroupStickRespect, PickOrder, PlayerAbductionSetting, TeamJoinSetting, TeamSettings, WeightType } from "@shared/teams/TeamTypes";
 import { Entity } from "./Entity";
 import { Player } from "./Player";
 
@@ -134,7 +134,7 @@ export class Team implements Entity, TeamSettings {
   }
   */
 
-  getJSON() {
+  toJSON() {
     return {
       name: this.name,
       color: this.color,

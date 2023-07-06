@@ -1,6 +1,6 @@
-import { WeightType } from "shared/teams/TeamTypes";
-import { Player } from "server/games/classes/entities/Player";
-import { DEFAULT_TEAM_SETTINGS, Team } from "server/games/classes/entities/Team";
+import { WeightType } from "@shared/teams/TeamTypes";
+import { Player } from "@server/games/classes/entities/Player";
+import { DEFAULT_TEAM_SETTINGS, Team } from "@server/games/classes/entities/Team";
 
 export type PlayerInfo = {
   player: Player;
@@ -164,14 +164,9 @@ export class PlayerContainer {
     return null;
   }
 
-  getStrippedTeams() {
-    // is this even required if we're just going to emit it anyway?
-    return this.teams.map(team => team.getJSON());
-  }
-
-  getJSON() {
+  toJSON() {
     return {
-      teams: this.getStrippedTeams(),
+      teams: this.teams,
       playerInfo: this.playerInfo
     }
   }
