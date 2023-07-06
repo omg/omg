@@ -1,13 +1,10 @@
-import { GameCode } from "../GameDirectory";
-import { BaseGame } from "../objects/BaseGame";
+import { Game } from "./classes/Game";
 
 export type NumberGameState = {
   epicNumber?: number
 }
 
-export class NumberGame extends BaseGame {
-  gameCode = GameCode.NUMBER_GAME;
-
+export class NumberGame extends Game {
   gameState: NumberGameState;
 
   init() {

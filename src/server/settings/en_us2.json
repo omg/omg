@@ -1,0 +1,51 @@
+{
+  "language.pronoun.female.subject": "she",
+  "language.pronoun.female.object": "her",
+  "language.pronoun.male.subject": "he",
+  "language.pronoun.male.object": "him",
+  "language.pronoun.other.subject": "they",
+  "language.pronoun.other.object": "them",
+  "friend.request.accepted2": {
+    "text": "{user} has accepted your friend request. Start a conversation with {pronoun} now!",
+
+    "replacements": [
+      {
+        "replace": "pronoun",
+        "with": {
+          "strategy": "pronoun",
+          "type": "object"
+        },
+        "using": "gender"
+      }
+    ]
+  },
+  "friend.request.accepted": {
+    "text": "{user} has accepted your friend request. Start a conversation with {pronoun} now!",
+
+    "replacements": [
+      {
+        "replace": "pronoun",
+        "with": {
+          "male": "him",
+          "female": "her",
+          "other": "them"
+        },
+        "using": "gender"
+      }
+    ]
+  },
+  "lobby.info.timer": {
+    "text": "{game} starts in {time} {seconds}",
+
+    "replacements": [
+      {
+        "replace": "seconds",
+        "pluralizing": {
+          "singular": "second",
+          "plural": "seconds"
+        },
+        "using": "time"
+      }
+    ]
+  }
+}

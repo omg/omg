@@ -1,11 +1,8 @@
-import { GameCode } from "../GameDirectory";
-import { BaseGame } from "../objects/BaseGame";
+import { Game } from "./classes/Game";
 
 export type DummyGameState = {}
 
-export class DummyGame extends BaseGame {
-  gameCode = GameCode.DUMMY_GAME;
-
+export class DummyGame extends Game {
   gameState: DummyGameState;
 
   init() {}

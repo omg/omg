@@ -1,10 +1,10 @@
 import { Container } from 'pixi.js';
-import { app } from '../app';
-import { GameCode } from '../GameDirectory';
-import { Room } from './Room';
+import { app } from '../../app';
+// import { GameCode } from '@shared/games/directory/GameDirectory';
+import { Room } from '../../objects/Room';
 
-export class BaseGame {
-  gameCode: GameCode;
+export class Game {
+  // gameCode: GameCode;
 
   gameState: GameState;
   room: Room;

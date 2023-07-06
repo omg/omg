@@ -1,15 +1,17 @@
-import { Container, Graphics, Sprite, Text } from "pixi.js";
+import { Container, Graphics, Sprite } from "pixi.js";
 import { app, connectResizeFunction, removeResizeFunction } from "../app";
-import { GameCode, GameDirectory } from "../GameDirectory";
-import { BaseGame } from "./BaseGame";
+import { Game } from "../games/classes/Game";
+import { PlayerContainer } from "./PlayerContainer";
+import { GameCode } from "@shared/games/directory/GameDirectory";
+import { GameDirectory } from "@client/games/directory/GameDirectory";
 import { Player } from "./Player";
 
 export class Room {
   ID: string;
-  players: Player[];
+  playerContainer: PlayerContainer;
 
   gameCode: GameCode;
-  game?: BaseGame;
+  game?: Game;
 
   roomContainer: Container;
   backgroundColorGraphics: Graphics;
@@ -17,9 +19,9 @@ export class Room {
 
   resizingFunction: () => void;
   
-  constructor(ID: string, players: Player[], gameCode: GameCode) {
+  constructor(ID: string, playerContainer: PlayerContainer, gameCode: GameCode) {
     this.ID = ID;
-    this.players = players;
+    this.playerContainer = playerContainer;
     this.gameCode = gameCode;
 
     // Room graphics
@@ -55,18 +57,15 @@ export class Room {
   }
 
   addPlayer(player: Player) {
-    this.players.push(player);
+    this.playerContainer.addPlayer(player);
 
-    console.log("Player joined room " + this.ID + " - " + this.players.length + " in room");
+    console.log("Player joined room " + this.ID + " - " + this.playerContainer.length + " in room");
   }
 
   removePlayer(player: Player) {
-    let index = this.players.findIndex((result: Player) => result.ID == player.ID);
-    if (index > -1) {
-      this.players.splice(index, 1);
+    this.playerContainer.removePlayer(player);
 
-      console.log("Player left room " + this.ID + " - " + this.players.length + " in room");
-    }
+    console.log("Player left room " + this.ID + " - " + this.playerContainer.length + " in room");
   }
 
   startGame() {
@@ -74,7 +73,7 @@ export class Room {
 
     this.roomContainer.visible = false;
     
-    this.game = new GameDirectory[this.gameCode].game(this);
+    this.game = new GameDirectory[this.gameCode].Game(this);
   }
 
   endGame() {

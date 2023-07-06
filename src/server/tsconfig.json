@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "allowJs": true,
-    "baseUrl": ".",
+    // "baseUrl": "./src",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "lib": ["dom", "es2020"],
@@ -10,15 +10,20 @@
     "skipLibCheck": true,
     "moduleResolution": "node",
     "alwaysStrict": false,
-    "noUnusedLocals": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "noImplicitAny": false,
     "sourceMap": true,
     "target": "es5",
-    "outDir": "dist/server"
+    "outDir": "dist/server",
+
+    "baseUrl": ".",
+    "rootDirs": [".", "../shared"],
+
+    "paths": {
+      "@server/*": ["./*"],
+      "@shared/*": ["../shared/*"]
+    }
   },
-  "paths": {
-    "server/*": ["src/server/*"],
-    "shared/*": ["src/shared/*"]
-  },
-  "include": ["src/server/**/*", "src/shared/**/*"]
+  "include": ["./**/*", "../shared/**/*"]
 }
