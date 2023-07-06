@@ -9,7 +9,7 @@
     "prestart": "npm i",
     "start": "npm-run-all --parallel watch:build watch:server",
     "preserver": "npm run prestart",
-    "server": "tsc -P src/server/tsconfig.json && webpack --config webpack.prod.js && ts-node -P src/server/tsconfig.json -r tsconfig-paths/register dist/server/index.js"
+    "server": "webpack --config webpack.prod.js && ts-node -P src/server/tsconfig.json -r tsconfig-paths/register src/server/index.ts"
   },
   "keywords": [],
   "author": "",
