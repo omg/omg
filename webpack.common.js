@@ -2,6 +2,7 @@ const path = require('path');
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 // minify the output with css-minimizer-webpack-plugin
 
@@ -11,7 +12,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 // old npm script "build:release": "webpack --optimize-minimize --config webpack.prod.js",
 
 module.exports = {
-  entry: './src/client/index.js',
+  entry: './src/client/index.ts',
   output: {
     filename: 'omg.js',
     path: path.resolve(__dirname, 'public/dist'),
@@ -31,7 +32,7 @@ module.exports = {
         use: [{
           loader: 'ts-loader',
           options: {
-            configFile: "tsconfig.webpack.json"
+            configFile: "tsconfig.json"
           }
         }],
         exclude: /node_modules/,
@@ -48,5 +49,6 @@ module.exports = {
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
+    plugins: [new TsconfigPathsPlugin({ configFile: "./src/client/tsconfig.json" })],
   },
 };

@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "allowJs": true,
-    "baseUrl": "./src", // i changed this from .
+    // "baseUrl": "./src",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "lib": ["dom", "es2020"],
@@ -10,15 +10,20 @@
     "skipLibCheck": true,
     "moduleResolution": "node",
     "alwaysStrict": false,
-    "noUnusedLocals": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "noImplicitAny": false,
     "sourceMap": true,
     "target": "es5",
-    "outDir": "dist/server"
+    "outDir": "dist/client",
+
+    "baseUrl": ".",
+    "rootDirs": [".", "../shared"],
+
+    "paths": {
+      "@client/*": ["./*"],
+      "@shared/*": ["../shared/*"]
+    }
   },
-  "paths": {
-    "@server/*": ["server/*"],
-    "@shared/*": ["shared/*"]
-  },
-  "include": ["./src/server/**/*", "./src/shared/**/*"]
+  "include": ["./**/*", "../shared/**/*"]
 }
