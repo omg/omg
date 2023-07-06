@@ -5,7 +5,7 @@ type BaseOptionSettings<T> = {
 
 type DevDescriptive = DescriptiveLike & {
   _?: string;
-}
+} | string;
 
 type DescriptiveLike = {
   name: string;
@@ -39,8 +39,13 @@ abstract class DescriptiveObject implements DescriptiveLike {
   description?: string;
 
   constructor(descriptive: DevDescriptive) {
-    this.name = descriptive.name;
-    this.description = descriptive.description;
+    // not really sure what was intended before since it's been months but i hope this is right
+    if (typeof descriptive === 'string') {
+      this.name = descriptive;
+    } else {
+      this.name = descriptive.name;
+      this.description = descriptive.description;
+    }
   }
 }
 
@@ -306,7 +311,7 @@ class Options extends DescriptiveObject implements OptionsLike {
   }
 
   // TODO
-  importJSON(options: OptionsLike): void {
+  importJSON(_options: OptionsLike): void {
     
   }
 
@@ -340,19 +345,45 @@ class Section extends DescriptiveObject implements SectionLike {
   }
 }
 
-let wordBombOptions = new Options({
-  _: "Word Bomb",
+// options.wordbomb
+// options.wordbomb.wordlength
+// options.gameplay
+// options.general
 
-  name: "options.wordbomb.name",
-}, [
-  new Tab("General", [
+// Without language support
+new Options("Word Bomb", [
+  new Tab("Gameplay", [
     new Section("General", [
-      new NumberRangeOption(["Word Length", "The length of the words to be guessed."], {
-        defaultValue: { min: 3, max: 10 },
-        minValue: 3,
-        maxValue: 10,
-        minDifference: 1,
-        maxDifference: 5,
+      new NumberRangeOption("Fuse time", {
+        defaultValue: { min: 3, max: 12 },
+        minValue: 0.5,
+        maxValue: 300
+      }),
+    ]),
+  ])
+]);
+
+// Using language support
+new Options("options.wordbomb", [
+  new Tab("options.gameplay", [
+    new Section("options.general", [
+      new NumberRangeOption("options.wordbomb.fusetime", {
+        defaultValue: { min: 3, max: 12 },
+        minValue: 0.5,
+        maxValue: 300
+      }),
+    ]),
+  ])
+]);
+
+// Using language support but maintaining readability for developers
+new Options("options.wordbomb", [ // Word Bomb
+  new Tab("options.gameplay", [ // Gameplay
+    new Section("options.general", [ // General
+      new NumberRangeOption("fusetime", { // Fuse time
+        defaultValue: { min: 3, max: 12 },
+        minValue: 0.5,
+        maxValue: 300
       }),
     ]),
   ])
