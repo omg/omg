@@ -1,15 +1,16 @@
 import { Player } from "./games/classes/entities/Player";
 import { DedicatedGameHandler } from "./games/classes/gamehandlers/DedicatedGameHandler";
+import express from "express";
+import http from "http";
+import { Server } from "socket.io";
+import path from "path";
 
-const express = require("express");
 const app = express();
-const http = require('http');
 const server = http.createServer(app);
-const { Server } = require("socket.io");
 const io = new Server(server);
+
 export default io;
 
-const path = require("path");
 
 app.use(express.static(path.join(__dirname, "../../public")));
 app.get("/", (_req, res) => {

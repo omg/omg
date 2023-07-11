@@ -2,7 +2,7 @@ import { randomUUID } from "crypto";
 import io from "@server/index";
 import { Player } from "@server/games/classes/entities/Player";
 import { PlayerContainer } from "@server/objects/PlayerContainer";
-// import EventEmitter = require("events");
+// import EventEmitter from "events";
 
 // DedicatedGameHandler is an extension of BaseGameHandler that can run games
 // Room is an extension of DedicatedGameHandler with a host and moderators and eventually more
