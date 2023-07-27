@@ -16,6 +16,7 @@
     "sourceMap": true,
     "target": "es5",
     "outDir": "dist/client",
+    "esModuleInterop": true,
 
     "baseUrl": ".",
     "rootDirs": [".", "../shared"],

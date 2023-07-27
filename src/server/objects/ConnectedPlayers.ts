@@ -1,4 +1,4 @@
-import EventEmitter = require("events");
+import EventEmitter from "events";
 import { Player } from "../games/classes/entities/Player";
 
 export class ConnectedPlayers extends EventEmitter {
